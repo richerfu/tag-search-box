@@ -32,6 +32,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.2.7
         version: 1.2.7(@types/react-dom@18.3.7(@types/react@18.3.22))(@types/react@18.3.22)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/react-onclickoutside':
+        specifier: ^6.7.10
+        version: 6.7.10
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -53,6 +56,9 @@ importers:
       react-dom:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
+      react-onclickoutside:
+        specifier: ^6.13.2
+        version: 6.13.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.3.0
@@ -723,6 +729,9 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
 
+  '@types/react-onclickoutside@6.7.10':
+    resolution: {integrity: sha512-Do2eOuqlJ9amXAuQO5gbhp5MAPnzZ7cknmYqX4U44tX22eAAnHgQKjp3SaNhSAuUHBTANWEqn1N+nWd3ea8FyQ==}
+
   '@types/react-transition-group@4.2.3':
     resolution: {integrity: sha512-Hk8jiuT7iLOHrcjKP/ZVSyCNXK73wJAUz60xm0mVhiRujrdiI++j4duLiL282VGxwAgxetHQFfqA29LgEeSkFA==}
 
@@ -1097,6 +1106,12 @@ packages:
     peerDependencies:
       react: ^15.5.x || ^16.x || ^17.x
       react-dom: ^15.5.x || ^16.x || ^17.x
+
+  react-onclickoutside@6.13.2:
+    resolution: {integrity: sha512-h6Hbf1c8b7tIYY4u90mDdBLY4+AGQVMFtIE89HgC0DtVCh/JfKl477gYqUtGLmjZBKK3MJxomP/lFiLbz4sq9A==}
+    peerDependencies:
+      react: ^15.5.x || ^16.x || ^17.x || ^18.x
+      react-dom: ^15.5.x || ^16.x || ^17.x || ^18.x
 
   react-popper@1.3.11:
     resolution: {integrity: sha512-VSA/bS+pSndSF2fiasHK/PTEEAyOpX60+H5EPAjoArr8JGm+oihu4UbrqcEBpQibJxBVCpYyjAX7abJ+7DoYVg==}
@@ -1866,6 +1881,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.22
 
+  '@types/react-onclickoutside@6.7.10':
+    dependencies:
+      '@types/react': 18.3.22
+
   '@types/react-transition-group@4.2.3':
     dependencies:
       '@types/react': 18.3.22
@@ -2217,6 +2236,11 @@ snapshots:
   react-is@16.13.1: {}
 
   react-onclickoutside@6.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+
+  react-onclickoutside@6.13.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)

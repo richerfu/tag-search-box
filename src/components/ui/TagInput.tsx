@@ -1,12 +1,5 @@
-import React, {
-  useState,
-  useRef,
-  useContext,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from "react";
-import { AttributeSelect, AttributeValue } from "./AttributeSelect";
+import React, { Component, createRef } from "react";
+import { AttributeValue } from "./AttributeSelect";
 import { ValueSelect } from "./valueselect/ValueSelect.tsx";
 import { TagSearchBoxContext } from "./TagSearchboxContext";
 import { cn } from "@/lib/utils";
@@ -17,7 +10,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Command,
   CommandEmpty,
@@ -25,6 +17,7 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
+import { mergeRefs } from "./util/mergeRefs.tsx";
 
 const keys: Record<string, string> = {
   "8": "backspace",
@@ -79,18 +72,6 @@ interface TagInputProps {
   inputOffset?: number;
 }
 
-interface TagInputRef {
-  focusInput: () => void;
-  moveToEnd: () => void;
-  selectValue: () => void;
-  selectAttr: () => void;
-  setInputValue: (value: string, callback?: () => void) => void;
-  resetInput: (callback?: () => void) => void;
-  getInputValue: () => string;
-  addTagByInputValue: () => boolean;
-  setInfo: (info: any, callback?: () => void) => void;
-}
-
 interface TagInputState {
   inputWidth: number;
   inputValue: string;
@@ -100,223 +81,206 @@ interface TagInputState {
   showAttrSelect: boolean;
   showValueSelect: boolean;
   valueSelectOffset: number;
-  popoverOpen: boolean;
   valueStr: string;
 }
 
-const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
-  const { active, attributes, hidden, maxWidth, type, dispatchTagEvent } =
-    props;
+class TagInput extends Component<TagInputProps, TagInputState> {
+  static contextType = TagSearchBoxContext;
+  declare context: React.ContextType<typeof TagSearchBoxContext>;
 
-  const context = useContext(TagSearchBoxContext);
+  private wrapperRef = createRef<HTMLDivElement>();
+  private inputRef = createRef<HTMLInputElement>();
+  private inputMirrorRef = createRef<HTMLSpanElement>();
+  private attrSelectRef = createRef<any>();
+  private valueSelectRef = createRef<any>();
 
-  const [state, setState] = useState<TagInputState>({
-    inputWidth: INPUT_MIN_SIZE,
-    inputValue: "",
-    fullInputValue: "",
-    attribute: null,
-    values: [],
-    showAttrSelect: false,
-    showValueSelect: false,
-    valueSelectOffset: 0,
-    popoverOpen: false,
-    valueStr: "",
-  });
+  constructor(props: TagInputProps) {
+    super(props);
+    this.state = {
+      inputWidth: INPUT_MIN_SIZE,
+      inputValue: "",
+      fullInputValue: "",
+      attribute: null,
+      values: [],
+      showAttrSelect: false,
+      showValueSelect: false,
+      valueSelectOffset: 0,
+      valueStr: "",
+    };
+  }
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
-  const inputMirrorRef = useRef<HTMLSpanElement>(null);
-  const attrSelectRef = useRef<any>(null);
-  const valueSelectRef = useRef<any>(null);
-
-  // 辅助函数：获取属性字符串和值字符串
-  const getAttrStrAndValueStr = (str: string) => {
+  // Helper function to get attribute string and value string
+  private getAttrStrAndValueStr = (str: string) => {
     let attrStr = str,
       valueStr = "",
       pos = -1;
 
-    for (let i = 0; i < attributes.length; ++i) {
-      if (str.indexOf(attributes[i].name + ":") === 0) {
-        // 获取属性/值
-        attrStr = attributes[i].name;
+    for (let i = 0; i < this.props.attributes.length; ++i) {
+      if (str.indexOf(this.props.attributes[i].name + ":") === 0) {
+        attrStr = this.props.attributes[i].name;
         valueStr = str.substr(attrStr.length + 1);
-        pos = attributes[i].name.length;
+        pos = this.props.attributes[i].name.length;
       }
     }
 
     return { attrStr, valueStr, pos };
   };
 
-  // 刷新选择组件显示
-  const refreshShow = () => {
-    const { inputValue, attribute } = state;
-    const input = inputRef.current;
-    // @ts-ignore - 处理 HTMLInputElement 与 HTMLTextAreaElement 共有的属性
+  // Refresh selection component display
+  private refreshShow = () => {
+    const { inputValue, attribute } = this.state;
+    const input = this.inputRef.current;
     const start = input?.selectionStart;
-    // @ts-ignore
     const end = input?.selectionEnd;
-    const pos = getAttrStrAndValueStr(inputValue).pos;
+    const pos = this.getAttrStrAndValueStr(inputValue).pos;
 
     if (pos < 0 || (start ?? 0) <= pos) {
-      setState((prev) => ({
-        ...prev,
+      this.setState({
         showAttrSelect: true,
         showValueSelect: false,
-      }));
+      });
       return;
     }
 
     if (attribute && (end ?? 0) > pos) {
-      setState((prev) => ({
-        ...prev,
+      this.setState({
         showAttrSelect: false,
         showValueSelect: true,
-      }));
+      });
     }
   };
 
-  // 聚焦输入框
-  const focusInput = () => {
-    if (!inputRef.current) return;
-    const input = inputRef.current;
-    input?.focus();
+  // Focus input
+  public focusInput = () => {
+    if (!this.inputRef.current) return;
+    this.inputRef.current.focus();
   };
 
-  // 将光标移动到末尾
-  const moveToEnd = () => {
-    const input = inputRef.current;
+  // Move cursor to end
+  public moveToEnd = () => {
+    const input = this.inputRef.current;
     input?.focus();
-    const value = state.inputValue;
+    const value = this.state.inputValue;
 
-    // @ts-ignore - 处理 HTMLInputElement 与 HTMLTextAreaElement 共有的属性
     setTimeout(() => input?.setSelectionRange(value.length, value.length), 0);
   };
 
-  // 选择值部分
-  const selectValue = () => {
-    const input = inputRef.current;
+  // Select value part
+  public selectValue = () => {
+    const input = this.inputRef.current;
     input?.focus();
-    const value = state.inputValue;
-    let pos = getAttrStrAndValueStr(value).pos;
+    const value = this.state.inputValue;
+    let pos = this.getAttrStrAndValueStr(value).pos;
     if (pos < 0) pos = -2;
 
-    // @ts-ignore
     setTimeout(() => {
       input?.setSelectionRange(pos + 2, value.length);
-      refreshShow();
+      this.refreshShow();
     }, 0);
   };
 
-  // 选择属性部分
-  const selectAttr = () => {
-    const input = inputRef.current;
+  // Select attribute part
+  public selectAttr = () => {
+    const input = this.inputRef.current;
     input?.focus();
-    const value = state.inputValue;
-    let pos = getAttrStrAndValueStr(value).pos;
+    const value = this.state.inputValue;
+    let pos = this.getAttrStrAndValueStr(value).pos;
     if (pos < 0) pos = 0;
 
-    // @ts-ignore
     setTimeout(() => {
       input?.setSelectionRange(0, pos);
-      refreshShow();
+      this.refreshShow();
     }, 0);
   };
 
-  // 设置输入值
-  const setInputValue = (value: string, callback?: () => void) => {
-    if (props.type === "edit" && value.trim().length <= 0) {
-      return props.dispatchTagEvent("del", "edit");
+  // Set input value
+  public setInputValue = (value: string, callback?: () => void) => {
+    if (this.props.type === "edit" && value.trim().length <= 0) {
+      return this.props.dispatchTagEvent("del", "edit");
     }
 
     let attribute = null,
       valueStr = value;
-    const mirror = inputMirrorRef.current;
+    const mirror = this.inputMirrorRef.current;
 
-    // 属性是否存在
-    for (let i = 0; i < attributes.length; ++i) {
+    // Check if attribute exists
+    for (let i = 0; i < this.props.attributes.length; ++i) {
       if (
-        value.indexOf(attributes[i].name + ":") === 0 ||
-        value.indexOf(attributes[i].name + "：") === 0
+        value.indexOf(this.props.attributes[i].name + ":") === 0 ||
+        value.indexOf(this.props.attributes[i].name + "：") === 0
       ) {
-        // 获取属性/值
-        attribute = attributes[i];
-        valueStr = value.substr(attributes[i].name.length + 1);
+        attribute = this.props.attributes[i];
+        valueStr = value.substr(this.props.attributes[i].name.length + 1);
 
-        // 计算 offset
         if (mirror) {
           mirror.innerText = attribute.name + ": ";
           let width = mirror.clientWidth;
-          if (props.inputOffset) width += props.inputOffset;
-          setState((prev) => ({
-            ...prev,
-            valueSelectOffset: width,
-          }));
+          if (this.props.inputOffset) width += this.props.inputOffset;
+          this.setState({ valueSelectOffset: width });
         }
         break;
       }
     }
 
-    // 处理前导空格
+    // Handle leading spaces
     if (attribute && valueStr.replace(/^\s+/, "").length > 0) {
       value = attribute.name + ": " + valueStr.replace(/^\s+/, "");
     } else if (attribute) {
       value = attribute.name + ":" + valueStr;
     }
 
-    // 更新值列表
-    let newValues = state.values;
-    if (attribute !== state.attribute && attribute) {
+    // Update values list
+    let newValues = this.state.values;
+    if (attribute !== this.state.attribute && attribute) {
       newValues = valueStr.split("|").map((item) => ({ name: item.trim() }));
     }
 
-    if (props.type === "edit") {
-      props.dispatchTagEvent("editing", { attr: attribute ?? undefined });
+    if (this.props.type === "edit") {
+      this.props.dispatchTagEvent("editing", { attr: attribute ?? undefined });
     }
 
     if (mirror) {
       mirror.innerText = value;
       const width = Math.max(mirror.clientWidth, INPUT_MIN_SIZE);
-      setState((prev) => ({
-        ...prev,
-        inputValue: value,
-        fullInputValue: value,
-        inputWidth: width,
-        attribute,
-        values: newValues,
-      }));
+      this.setState(
+        {
+          inputValue: value,
+          fullInputValue: value,
+          inputWidth: width,
+          attribute,
+          values: newValues,
+        },
+        callback
+      );
+    } else if (callback) {
+      setTimeout(callback, 0);
     }
-
-    if (callback) setTimeout(callback, 0);
   };
 
-  // 设置完整输入值（包含输入法过程）
-  const setFullInputValue = (value: string) => {
+  // Set full input value (including IME process)
+  private setFullInputValue = (value: string) => {
     let attribute = null,
       valueStr = value;
-    const mirror = inputMirrorRef.current;
+    const mirror = this.inputMirrorRef.current;
 
-    // 检查是否是属性
-    for (let i = 0; i < attributes.length; ++i) {
+    for (let i = 0; i < this.props.attributes.length; ++i) {
       if (
-        value.indexOf(attributes[i].name + ":") === 0 ||
-        value.indexOf(attributes[i].name + "：") === 0
+        value.indexOf(this.props.attributes[i].name + ":") === 0 ||
+        value.indexOf(this.props.attributes[i].name + "：") === 0
       ) {
-        // 获取属性/值
-        attribute = attributes[i];
-        valueStr = value.substr(attributes[i].name.length + 1);
+        attribute = this.props.attributes[i];
+        valueStr = value.substr(this.props.attributes[i].name.length + 1);
 
-        // 计算 offset
         if (mirror) {
           mirror.innerText = attribute.name + ": ";
           let width = mirror.clientWidth;
-          if (props.inputOffset) width += props.inputOffset;
-          setState((prev) => ({ ...prev, valueSelectOffset: width }));
+          if (this.props.inputOffset) width += this.props.inputOffset;
+          this.setState({ valueSelectOffset: width });
         }
         break;
       }
     }
 
-    // 处理前导空格
     if (attribute && valueStr.replace(/^\s+/, "").length > 0) {
       value = attribute.name + ": " + valueStr.replace(/^\s+/, "");
     } else if (attribute) {
@@ -326,41 +290,38 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     if (mirror) {
       mirror.innerText = value;
       const width = Math.max(mirror.clientWidth, INPUT_MIN_SIZE);
-      setState((prev) => ({
-        ...prev,
+      this.setState({
         fullInputValue: value,
         inputWidth: width,
-      }));
+      });
     }
   };
 
-  // 重置输入
-  const resetInput = (callback?: () => void) => {
-    setInputValue("", callback);
-    setState((prev) => ({ ...prev, inputWidth: INPUT_MIN_SIZE }));
+  // Reset input
+  public resetInput = (callback?: () => void) => {
+    this.setInputValue("", callback);
+    this.setState({ inputWidth: INPUT_MIN_SIZE });
   };
 
-  // 获取输入值
-  const getInputValue = () => {
-    return state.inputValue;
+  // Get input value
+  public getInputValue = () => {
+    return this.state.inputValue;
   };
 
-  // 根据输入值添加标签
-  const addTagByInputValue = () => {
-    const { attribute, values, inputValue } = state;
-    const type = props.type || "add";
+  // Add tag by input value
+  public addTagByInputValue = () => {
+    const { attribute, values, inputValue } = this.state;
+    const type = this.props.type || "add";
 
-    // 属性值搜索
     if (
       attribute &&
-      props.attributes.filter((item) => item.key === attribute.key).length > 0
+      this.props.attributes.filter((item) => item.key === attribute.key).length > 0
     ) {
       if (values.length <= 0) {
         return false;
       }
-      props.dispatchTagEvent(type, { attr: attribute, values });
+      this.props.dispatchTagEvent(type, { attr: attribute, values });
     } else {
-      // 关键字搜索
       if (inputValue.trim().length <= 0) {
         return false;
       }
@@ -368,109 +329,100 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         .split("|")
         .filter((item) => item.trim().length > 0)
         .map((item) => ({ name: item.trim() }));
-      props.dispatchTagEvent(type, { attr: null, values: list });
+      this.props.dispatchTagEvent(type, { attr: null, values: list });
     }
 
-    setState((prev) => ({
-      ...prev,
+    this.setState({
       showAttrSelect: false,
       showValueSelect: false,
-    }));
+    });
 
-    if (props.type !== "edit") {
-      resetInput();
+    if (this.props.type !== "edit") {
+      this.resetInput();
     }
     return true;
   };
 
-  // 输入框变化
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setInputValue(e.target.value);
+  // Event handlers
+  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setInputValue(e.target.value);
   };
 
-  // 输入框点击
-  const handleInputClick = (e: React.MouseEvent) => {
-    props.dispatchTagEvent("click-input", props.type);
+  private handleInputClick = (e: React.MouseEvent) => {
+    this.props.dispatchTagEvent("click-input", this.props.type);
     e.stopPropagation();
-    focusInput();
+    this.focusInput();
   };
 
-  // 属性选择
-  const handleAttrSelect = (attr: any) => {
+  private handleAttrSelect = (attr: any) => {
     if (attr && attr.key) {
       const str = attr.name + ": ";
-      const { inputValue } = state;
+      const { inputValue } = this.state;
 
       if (inputValue.indexOf(str) >= 0) {
-        selectValue();
+        this.selectValue();
       } else {
-        setInputValue(str);
+        this.setInputValue(str);
       }
-      setState((prev) => ({ ...prev, values: [] }));
+      this.setState({ values: [] });
     }
-    focusInput();
+    this.focusInput();
   };
 
-  // 值变化
-  const handleValueChange = (values: any[]) => {
-    setState((prev) => ({ ...prev, values }));
-    setInputValue(
-      (state.attribute?.name ?? "") +
+  private handleValueChange = (values: any[]) => {
+    this.setState({ values });
+    this.setInputValue(
+      (this.state.attribute?.name ?? "") +
         ": " +
         values.map((item) => item.name).join(" | ")
     );
-    focusInput();
+    this.focusInput();
   };
 
-  // 值选择完成
-  const handleValueSelect = (values: any[]) => {
-    setState((prev) => ({ ...prev, values }));
+  private handleValueSelect = (values: any[]) => {
+    this.setState({ values });
 
     if (values.length <= 0) {
-      setInputValue((state.attribute?.name ?? "") + ": ");
+      this.setInputValue((this.state.attribute?.name ?? "") + ": ");
       return;
     }
 
-    if (values.length > 0 && state.attribute) {
-      const key = state.attribute.key;
-      if (attributes.filter((item) => item.key === key).length > 0) {
-        const type = props.type || "add";
-        dispatchTagEvent(type, {
-          attr: state.attribute,
+    if (values.length > 0 && this.state.attribute) {
+      const key = this.state.attribute.key;
+      if (this.props.attributes.filter((item) => item.key === key).length > 0) {
+        const type = this.props.type || "add";
+        this.props.dispatchTagEvent(type, {
+          attr: this.state.attribute,
           values,
         });
       }
-      focusInput();
+      this.focusInput();
     }
 
-    if (props.type !== "edit") {
-      resetInput();
+    if (this.props.type !== "edit") {
+      this.resetInput();
     }
   };
 
-  // 值选择取消
-  const handleValueCancel = () => {
-    if (props.type === "edit") {
-      const { attribute, values } = state;
-      props.dispatchTagEvent("edit-cancel", {
+  private handleValueCancel = () => {
+    if (this.props.type === "edit") {
+      const { attribute, values } = this.state;
+      this.props.dispatchTagEvent("edit-cancel", {
         attr: attribute,
         values,
       });
     } else {
-      resetInput(() => {
-        focusInput();
+      this.resetInput(() => {
+        this.focusInput();
       });
     }
   };
 
-  // 处理粘贴事件
-  const handlePaste = (e: React.ClipboardEvent) => {
+  private handlePaste = (e: React.ClipboardEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
-    const { attribute } = state;
+    const { attribute } = this.state;
 
     if (!attribute || attribute.type === "input") {
       let value = "";
@@ -492,42 +444,37 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         .filter((item) => item.length > 0)
         .join(" | ");
 
-      const input = inputRef.current;
-      // @ts-ignore
+      const input = this.inputRef.current;
       const start = input?.selectionStart;
-      // @ts-ignore
       const end = input?.selectionEnd;
-      const { inputValue } = state;
+      const { inputValue } = this.state;
 
-      // 覆盖选择区域
       const curValue =
         inputValue.substring(0, start!) +
         value +
         inputValue.substring(end!, inputValue.length);
 
-      // input 属性情况
       if (attribute && attribute.type === "input") {
-        setInputValue(curValue, focusInput);
+        this.setInputValue(curValue, this.focusInput);
         return;
       }
 
       if (inputValue.length > 0) {
-        setInputValue(curValue, focusInput);
+        this.setInputValue(curValue, this.focusInput);
       } else {
-        setInputValue(curValue, addTagByInputValue);
+        this.setInputValue(curValue, this.addTagByInputValue);
       }
     }
   };
 
-  // 处理键盘事件
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  private handleKeyDown = (e: React.KeyboardEvent) => {
     if (!keys[e.keyCode.toString()]) return;
 
-    if (props.hidden) {
-      return props.handleKeyDown?.(e);
+    if (this.props.hidden) {
+      return this.props.handleKeyDown?.(e);
     }
 
-    const { inputValue } = state;
+    const { inputValue } = this.state;
 
     if (keys[e.keyCode.toString()] === "backspace" && inputValue.length > 0)
       return;
@@ -537,39 +484,38 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         keys[e.keyCode.toString()] === "right") &&
       inputValue.length > 0
     ) {
-      setTimeout(refreshShow, 0);
+      setTimeout(this.refreshShow, 0);
       return;
     }
 
     if (keys[e.keyCode.toString()] === "esc") {
       if (!inputValue) {
-        context.close?.();
+        this.context.close?.();
       }
-      return handleValueCancel();
+      return this.handleValueCancel();
     }
 
     e.preventDefault();
 
-    // 事件下传
-    if (attrSelectRef.current) {
-      if (attrSelectRef.current.handleKeyDown(e.keyCode) === false) return;
+    if (this.attrSelectRef.current) {
+      if (this.attrSelectRef.current.handleKeyDown(e.keyCode) === false) return;
     }
 
-    if (valueSelectRef.current) {
-      valueSelectRef.current.handleKeyDownForRenderMode(e.key);
-      if (valueSelectRef.current.handleKeyDown(e.keyCode) === false) return;
+    if (this.valueSelectRef.current) {
+      this.valueSelectRef.current.handleKeyDownForRenderMode(e.key);
+      if (this.valueSelectRef.current.handleKeyDown(e.keyCode) === false) return;
     }
 
     switch (keys[e.keyCode.toString()]) {
       case "enter":
       case "tab":
-        if (!props.isFocused) {
-          props.dispatchTagEvent("click-input");
+        if (!this.props.isFocused) {
+          this.props.dispatchTagEvent("click-input");
         }
-        addTagByInputValue();
+        this.addTagByInputValue();
         break;
       case "backspace":
-        props.dispatchTagEvent("del", "keyboard");
+        this.props.dispatchTagEvent("del", "keyboard");
         break;
       case "up":
         break;
@@ -578,220 +524,209 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     }
   };
 
-  // 设置信息
-  const setInfo = (info: any, callback?: () => void) => {
+  public setInfo = (info: any, callback?: () => void) => {
     const attribute = info.attr;
     const values = info.values;
 
-    setState((prev) => ({ ...prev, attribute, values }));
+    this.setState({ attribute, values });
 
     if (attribute) {
-      setInputValue(
+      this.setInputValue(
         attribute.name +
           ": " +
           values.map((item: any) => item.name).join(" | "),
         callback
       );
     } else {
-      setInputValue(
+      this.setInputValue(
         "" + values.map((item: any) => item.name).join(" | "),
         callback
       );
     }
   };
 
-  // 处理 Popover 状态改变
-  const handleOpenChange = (open: boolean) => {
-    setState((prev) => ({ ...prev, popoverOpen: open }));
+  private handleOpenChange = (open: boolean) => {
     if (!open) {
-      context.close?.();
+      this.context.close?.();
     }
   };
 
-  // 暴露方法给父组件
-  useImperativeHandle(ref, () => ({
-    focusInput,
-    moveToEnd,
-    selectValue,
-    selectAttr,
-    setInputValue,
-    resetInput,
-    getInputValue,
-    addTagByInputValue,
-    setInfo,
-  }));
-
-  const {
-    inputWidth,
-    inputValue,
-    fullInputValue,
-    showAttrSelect,
-    showValueSelect,
-    attribute,
-    valueSelectOffset,
-    popoverOpen,
-  } = state;
-
-  // Only use valueStr from getAttrStrAndValueStr
-  const valueStr = getAttrStrAndValueStr(inputValue).valueStr;
-
-  let maxHeight = SELECT_MIN_HEIGHT;
-  try {
-    if (wrapperRef.current) {
-      maxHeight = Math.max(
-        window.innerHeight -
-          wrapperRef.current.getBoundingClientRect().bottom -
-          60,
-        SELECT_MIN_HEIGHT
-      );
+  componentDidUpdate(prevProps: TagInputProps, prevState: TagInputState) {
+    if (prevState.inputValue !== this.state.inputValue) {
+      this.setState({
+        valueStr: this.getAttrStrAndValueStr(this.state.inputValue).valueStr,
+      });
     }
-  } catch (_) {}
+  }
 
-  // Update valueStr when inputValue changes
-  useEffect(() => {
-    setState((prev) => ({
-      ...prev,
-      valueStr: getAttrStrAndValueStr(state.inputValue).valueStr,
-    }));
-  }, [state.inputValue]);
-
-  const renderValueSelect = () => {
-    if (!state.showValueSelect || !state.attribute) {
+  private renderValueSelect() {
+    if (!this.state.showValueSelect || !this.state.attribute) {
       return null;
     }
 
-    const { type, values, render } = state.attribute!;
+    const { type, values, render } = this.state.attribute;
     return (
       <ValueSelect
-        ref={valueSelectRef}
+        ref={this.valueSelectRef}
         type={type ?? ""}
         values={values ?? []}
         render={render}
-        inputValue={state.valueStr}
-        offset={state.valueSelectOffset}
-        onChange={handleValueChange}
-        onSelect={handleValueSelect}
-        onCancel={handleValueCancel}
+        inputValue={this.state.valueStr}
+        offset={this.state.valueSelectOffset}
+        onChange={this.handleValueChange}
+        onSelect={this.handleValueSelect}
+        onCancel={this.handleValueCancel}
         maxHeight={SELECT_MIN_HEIGHT}
       />
     );
-  };
+  }
 
-  return (
-    <div
-      ref={wrapperRef}
-      className={cn("relative inline-block", hidden && "hidden")}
-      style={{
-        width: hidden ? 0 : active ? inputWidth + 6 : 6,
-        padding: type === "edit" && !hidden ? "0 8px" : "",
-      }}
-      onClick={handleInputClick}
-    >
-      <Popover
-        open={state.popoverOpen}
-        onOpenChange={(open) =>
-          setState((prev) => ({ ...prev, popoverOpen: open }))
-        }
+  render() {
+    const {
+      active,
+      hidden,
+      maxWidth,
+      type,
+      isFocused
+    } = this.props;
+
+    const {
+      inputWidth,
+      inputValue,
+      fullInputValue,
+      showAttrSelect,
+      showValueSelect,
+      attribute,
+      valueSelectOffset,
+    } = this.state;
+
+    let maxHeight = SELECT_MIN_HEIGHT;
+    try {
+      if (this.wrapperRef.current) {
+        maxHeight = Math.max(
+          window.innerHeight -
+            this.wrapperRef.current.getBoundingClientRect().bottom -
+            60,
+          SELECT_MIN_HEIGHT
+        );
+      }
+    } catch (_) {}
+
+    return (
+      <div
+        ref={this.wrapperRef}
+        className={cn("relative inline-block", hidden && "hidden")}
+        style={{
+          width: hidden ? 0 : active ? inputWidth + 6 : 6,
+          padding: type === "edit" && !hidden ? "0 8px" : "",
+        }}
+        onClick={this.handleInputClick}
       >
-        <PopoverTrigger asChild>
-          <div
-            style={{
-              width: hidden ? 0 : state.inputWidth + 6,
-              maxWidth: maxWidth ? maxWidth - 36 : 435,
-              display: active ? "" : "none",
-            }}
-          >
-            {type !== "edit" ? (
-              <Input
-                ref={inputRef as React.RefObject<HTMLInputElement>}
-                value={state.inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onClick={refreshShow}
-                onPaste={handlePaste}
-                className={cn(
-                  "h-full w-full border-none p-0 text-sm",
-                  "bg-transparent",
-                  "focus:outline-none focus:ring-0 focus-visible:ring-0",
-                  "placeholder:text-muted-foreground/70",
-                  "caret-foreground",
-                  "shadow-none"
-                )}
-                style={{
-                  width: hidden ? 0 : state.inputWidth + 6,
-                  display: active ? "" : "none",
-                  maxWidth: maxWidth ? maxWidth - 36 : 435,
-                }}
-                data-type="tag-input"
-              />
-            ) : (
-              <Input
-                ref={inputRef as React.RefObject<HTMLInputElement>}
-                value={state.inputValue}
-                onChange={handleInputChange}
-                onKeyDown={handleKeyDown}
-                onClick={refreshShow}
-                onPaste={handlePaste}
-                className={cn(
-                  "h-full w-full border-none p-0 text-sm",
-                  "bg-transparent",
-                  "focus:outline-none focus:ring-0 focus-visible:ring-0",
-                  "placeholder:text-muted-foreground/70",
-                  "caret-foreground",
-                  "shadow-none"
-                )}
-                style={{
-                  position: "absolute",
-                  width: hidden ? 0 : state.inputWidth + 30,
-                  display: active ? "" : "none",
-                  maxWidth: maxWidth ? maxWidth - 36 : 435,
-                  top: 0,
-                  left: 0,
-                  height: "100%",
-                  resize: "none",
-                  minHeight: 20,
-                }}
-              />
-            )}
-            <span
-              ref={inputMirrorRef}
-              className="invisible absolute left-0 top-0 whitespace-pre text-sm"
-              style={{ padding: "inherit" }}
-            >
-              {state.fullInputValue}
-            </span>
-          </div>
-        </PopoverTrigger>
-        <PopoverContent
-          className={cn(
-            "w-[var(--radix-popover-trigger-width)] p-0",
-            "min-h-[var(--radix-popover-trigger-height)]"
-          )}
-          align="start"
-          sideOffset={4}
+        <Popover
+          open={active && isFocused && (showAttrSelect || (showValueSelect && !!attribute && !!attribute.type))}
+          onOpenChange={this.handleOpenChange}
         >
-          {state.showAttrSelect && (
-            <Command className="rounded-lg border shadow-md">
-              <CommandInput placeholder="Search attributes..." />
-              <CommandEmpty>No attributes found.</CommandEmpty>
-              <CommandGroup>
-                {attributes.map((attr) => (
-                  <CommandItem
-                    key={attr.key}
-                    onSelect={() => handleAttrSelect(attr)}
-                    className="cursor-pointer"
-                  >
-                    {attr.name}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </Command>
-          )}
-          {renderValueSelect()}
-        </PopoverContent>
-      </Popover>
-    </div>
-  );
-});
+          <PopoverTrigger asChild>
+            <div
+              style={{
+                width: hidden ? 0 : inputWidth + 6,
+                maxWidth: maxWidth ? maxWidth - 36 : 435,
+                display: active ? "" : "none",
+              }}
+            >
+              {type !== "edit" ? (
+                <Input
+                  ref={this.inputRef}
+                  value={inputValue}
+                  onChange={this.handleInputChange}
+                  onKeyDown={this.handleKeyDown}
+                  onClick={this.refreshShow}
+                  onPaste={this.handlePaste}
+                  onFocus={this.refreshShow}
+                  className={cn(
+                    "h-full w-full border-none p-0 text-sm",
+                    "bg-transparent",
+                    "focus:outline-none focus:ring-0 focus-visible:ring-0",
+                    "placeholder:text-muted-foreground/70",
+                    "caret-foreground",
+                    "shadow-none"
+                  )}
+                  style={{
+                    width: hidden ? 0 : inputWidth + 6,
+                    display: active ? "" : "none",
+                    maxWidth: maxWidth ? maxWidth - 36 : 435,
+                  }}
+                  data-type="tag-input"
+                />
+              ) : (
+                <Input
+                  ref={this.inputRef}
+                  value={inputValue}
+                  onChange={this.handleInputChange}
+                  onKeyDown={this.handleKeyDown}
+                  onClick={this.refreshShow}
+                  onPaste={this.handlePaste}
+                  onFocus={this.refreshShow}
+                  className={cn(
+                    "h-full w-full border-none p-0 text-sm",
+                    "bg-transparent",
+                    "focus:outline-none focus:ring-0 focus-visible:ring-0",
+                    "placeholder:text-muted-foreground/70",
+                    "caret-foreground",
+                    "shadow-none"
+                  )}
+                  style={{
+                    position: "absolute",
+                    width: hidden ? 0 : inputWidth + 30,
+                    display: active ? "" : "none",
+                    maxWidth: maxWidth ? maxWidth - 36 : 435,
+                    top: 0,
+                    left: 0,
+                    height: "100%",
+                    resize: "none",
+                    minHeight: 20,
+                  }}
+                />
+              )}
+              <span
+                ref={this.inputMirrorRef}
+                className="invisible absolute left-0 top-0 whitespace-pre text-sm"
+                style={{ padding: "inherit" }}
+              >
+                {fullInputValue}
+              </span>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent
+            className={cn(
+              'p-0 border-none bg-white'
+            )}
+            align="start"
+            sideOffset={20}
+          >
+            {showAttrSelect && (
+              <Command className="rounded-lg border-none shadow-none ignore-outside-click">
+                <CommandInput placeholder="Search attributes..." />
+                <CommandEmpty>No attributes found.</CommandEmpty>
+                <CommandGroup>
+                  {this.props.attributes.map((attr) => (
+                    <CommandItem
+                      key={attr.key}
+                      onSelect={() => this.handleAttrSelect(attr)}
+                      className="cursor-pointer hover:bg-gray-50 data-[selected=true]:bg-gray-100"
+                    >
+                      {attr.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            )}
+            {this.renderValueSelect()}
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  }
+}
 
 export { TagInput };

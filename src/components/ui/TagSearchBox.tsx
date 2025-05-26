@@ -613,17 +613,24 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
     <div className="w-full">
       <div
         className={cn(
-          "flex h-10 w-full flex-wrap items-center gap-1.5 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
-          "file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "placeholder:text-muted-foreground",
-          "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+          "flex h-10 w-full items-center",
+          "rounded-md border border-input",
+          "bg-background text-sm shadow-sm",
+          "ring-offset-background",
+          "transition-colors duration-200",
+          "focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0",
           "disabled:cursor-not-allowed disabled:opacity-50",
-          !disabled && "cursor-text"
+          !disabled && [
+            "cursor-text",
+            "hover:border-primary/50",
+            active && "border-primary",
+            active && "ring-2 ring-primary/20",
+          ]
         )}
         onClick={open}
         ref={searchBoxRef}
       >
-        <div className="flex flex-wrap items-center flex-1">
+        <div className="flex items-center flex-1 px-3 py-1">
           <TagSearchBoxContext.Provider
             value={{
               attributesSelectTips,
@@ -631,17 +638,18 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
               close,
             }}
           >
-            {tagList}
+            <div className="flex items-center gap-1">
+              {tagList}
+              {tags.length === 0 && !active && (
+                <div className="pointer-events-none text-muted-foreground/70 text-sm whitespace-nowrap">
+                  {tips}
+                </div>
+              )}
+            </div>
           </TagSearchBoxContext.Provider>
         </div>
 
-        {tags.length === 0 && !active && (
-          <div className="pointer-events-none text-muted-foreground text-sm">
-            {tips}
-          </div>
-        )}
-
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center border-l border-input h-full">
           {!!active && tags.length > 0 && (
             <TooltipProvider>
               <Tooltip>
@@ -649,14 +657,16 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 hover:bg-accent hover:text-accent-foreground"
+                    className="h-9 w-9 hover:bg-muted rounded-none border-0"
                     onClick={handleClear}
                   >
                     <X className="h-4 w-4" />
                     <span className="sr-only">Clear</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Clear all tags</TooltipContent>
+                <TooltipContent side="bottom" className="text-xs">
+                  Clear all tags
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -668,14 +678,16 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 hover:bg-accent hover:text-accent-foreground"
+                    className="h-9 w-9 hover:bg-muted rounded-none border-0"
                     onClick={handleHelp}
                   >
                     <Info className="h-4 w-4" />
                     <span className="sr-only">Help</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Show help</TooltipContent>
+                <TooltipContent side="bottom" className="text-xs">
+                  Show help
+                </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           )}
@@ -687,7 +699,7 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
                   variant="ghost"
                   size="icon"
                   className={cn(
-                    "h-8 w-8 hover:bg-accent hover:text-accent-foreground",
+                    "h-9 w-9 hover:bg-muted rounded-none rounded-r-md border-0",
                     active && "text-primary"
                   )}
                   disabled={disabled}
@@ -697,16 +709,20 @@ const ITagSearchBox = forwardRef<any, TagSearchBoxProps>((props, ref) => {
                   <span className="sr-only">Search</span>
                 </Button>
               </TooltipTrigger>
-              {active && <TooltipContent>Search</TooltipContent>}
+              {active && (
+                <TooltipContent side="bottom" className="text-xs">
+                  Search
+                </TooltipContent>
+              )}
             </Tooltip>
           </TooltipProvider>
         </div>
       </div>
 
       <Dialog open={dialogActive} onOpenChange={handleCloseDialog}>
-        <DialogContent className="max-w-[988px]">
+        <DialogContent className="max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Help</DialogTitle>
+            <DialogTitle className="text-base">Help</DialogTitle>
           </DialogHeader>
           {/* <TagSearchBoxHelp /> */}
         </DialogContent>

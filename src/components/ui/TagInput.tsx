@@ -1,17 +1,30 @@
-import React, { useState, useRef, useContext, forwardRef, useImperativeHandle, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useContext,
+  forwardRef,
+  useImperativeHandle,
+  useEffect,
+} from "react";
 import { AttributeSelect, AttributeValue } from "./AttributeSelect";
 import { ValueSelect } from "./valueselect/ValueSelect.tsx";
 import { TagSearchBoxContext } from "./TagSearchboxContext";
 import { cn } from "@/lib/utils";
 
-import { 
+import {
   Popover,
-  PopoverContent, 
-  PopoverTrigger 
+  PopoverContent,
+  PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
 
 const keys: Record<string, string> = {
   "8": "backspace",
@@ -28,42 +41,42 @@ const INPUT_MIN_SIZE = 0;
 const SELECT_MIN_HEIGHT = 242;
 
 interface TagInputProps {
-    /**
-     * 触发标签相关事件
-     */
-    dispatchTagEvent: (type: string, payload?: any) => void;
-    /**
-     * 所有属性集合
-     */
-    attributes: Array<AttributeValue>;
-    /**
-     * 是否为 Focus 态
-     */
-    isFocused: boolean;
-    /**
-     * 搜索框是否处于展开状态
-     */
-    active: boolean;
-    /**
-     * 输入框类型（用于修改标签值的 Input type 为 "edit"）
-     */
-    type?: "edit" | "add";
-    /**
-     * 是否隐藏
-     */
-    hidden?: boolean;
-    /**
-     * 最大宽度
-     */
-    maxWidth: number | null;
-    /**
-     * 处理按键事件
-     */
-    handleKeyDown?: (e: any) => void;
-    /**
-     * 位置偏移
-     */
-    inputOffset?: number;
+  /**
+   * 触发标签相关事件
+   */
+  dispatchTagEvent: (type: string, payload?: any) => void;
+  /**
+   * 所有属性集合
+   */
+  attributes: Array<AttributeValue>;
+  /**
+   * 是否为 Focus 态
+   */
+  isFocused: boolean;
+  /**
+   * 搜索框是否处于展开状态
+   */
+  active: boolean;
+  /**
+   * 输入框类型（用于修改标签值的 Input type 为 "edit"）
+   */
+  type?: "edit" | "add";
+  /**
+   * 是否隐藏
+   */
+  hidden?: boolean;
+  /**
+   * 最大宽度
+   */
+  maxWidth: number | null;
+  /**
+   * 处理按键事件
+   */
+  handleKeyDown?: (e: any) => void;
+  /**
+   * 位置偏移
+   */
+  inputOffset?: number;
 }
 
 interface TagInputRef {
@@ -92,14 +105,8 @@ interface TagInputState {
 }
 
 const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
-  const {
-    active,
-    attributes,
-    hidden,
-    maxWidth,
-    type,
-    dispatchTagEvent,
-  } = props;
+  const { active, attributes, hidden, maxWidth, type, dispatchTagEvent } =
+    props;
 
   const context = useContext(TagSearchBoxContext);
 
@@ -124,8 +131,10 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
 
   // 辅助函数：获取属性字符串和值字符串
   const getAttrStrAndValueStr = (str: string) => {
-    let attrStr = str, valueStr = "", pos = -1;
-    
+    let attrStr = str,
+      valueStr = "",
+      pos = -1;
+
     for (let i = 0; i < attributes.length; ++i) {
       if (str.indexOf(attributes[i].name + ":") === 0) {
         // 获取属性/值
@@ -134,7 +143,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         pos = attributes[i].name.length;
       }
     }
-    
+
     return { attrStr, valueStr, pos };
   };
 
@@ -149,12 +158,20 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     const pos = getAttrStrAndValueStr(inputValue).pos;
 
     if (pos < 0 || (start ?? 0) <= pos) {
-      setState(prev => ({ ...prev, showAttrSelect: true, showValueSelect: false }));
+      setState((prev) => ({
+        ...prev,
+        showAttrSelect: true,
+        showValueSelect: false,
+      }));
       return;
     }
 
     if (attribute && (end ?? 0) > pos) {
-      setState(prev => ({ ...prev, showAttrSelect: false, showValueSelect: true }));
+      setState((prev) => ({
+        ...prev,
+        showAttrSelect: false,
+        showValueSelect: true,
+      }));
     }
   };
 
@@ -170,7 +187,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     const input = inputRef.current;
     input?.focus();
     const value = state.inputValue;
-    
+
     // @ts-ignore - 处理 HTMLInputElement 与 HTMLTextAreaElement 共有的属性
     setTimeout(() => input?.setSelectionRange(value.length, value.length), 0);
   };
@@ -182,7 +199,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     const value = state.inputValue;
     let pos = getAttrStrAndValueStr(value).pos;
     if (pos < 0) pos = -2;
-    
+
     // @ts-ignore
     setTimeout(() => {
       input?.setSelectionRange(pos + 2, value.length);
@@ -197,7 +214,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     const value = state.inputValue;
     let pos = getAttrStrAndValueStr(value).pos;
     if (pos < 0) pos = 0;
-    
+
     // @ts-ignore
     setTimeout(() => {
       input?.setSelectionRange(0, pos);
@@ -211,7 +228,8 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
       return props.dispatchTagEvent("del", "edit");
     }
 
-    let attribute = null, valueStr = value;
+    let attribute = null,
+      valueStr = value;
     const mirror = inputMirrorRef.current;
 
     // 属性是否存在
@@ -223,15 +241,15 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         // 获取属性/值
         attribute = attributes[i];
         valueStr = value.substr(attributes[i].name.length + 1);
-        
+
         // 计算 offset
         if (mirror) {
           mirror.innerText = attribute.name + ": ";
           let width = mirror.clientWidth;
           if (props.inputOffset) width += props.inputOffset;
-          setState(prev => ({ 
-            ...prev, 
-            valueSelectOffset: width 
+          setState((prev) => ({
+            ...prev,
+            valueSelectOffset: width,
           }));
         }
         break;
@@ -248,32 +266,33 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     // 更新值列表
     let newValues = state.values;
     if (attribute !== state.attribute && attribute) {
-      newValues = valueStr.split("|").map(item => ({ name: item.trim() }));
+      newValues = valueStr.split("|").map((item) => ({ name: item.trim() }));
     }
 
     if (props.type === "edit") {
       props.dispatchTagEvent("editing", { attr: attribute ?? undefined });
     }
-    
+
     if (mirror) {
       mirror.innerText = value;
       const width = Math.max(mirror.clientWidth, INPUT_MIN_SIZE);
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         inputValue: value,
         fullInputValue: value,
         inputWidth: width,
         attribute,
-        values: newValues
+        values: newValues,
       }));
     }
-    
+
     if (callback) setTimeout(callback, 0);
   };
 
   // 设置完整输入值（包含输入法过程）
   const setFullInputValue = (value: string) => {
-    let attribute = null, valueStr = value;
+    let attribute = null,
+      valueStr = value;
     const mirror = inputMirrorRef.current;
 
     // 检查是否是属性
@@ -285,13 +304,13 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
         // 获取属性/值
         attribute = attributes[i];
         valueStr = value.substr(attributes[i].name.length + 1);
-        
+
         // 计算 offset
         if (mirror) {
           mirror.innerText = attribute.name + ": ";
           let width = mirror.clientWidth;
           if (props.inputOffset) width += props.inputOffset;
-          setState(prev => ({ ...prev, valueSelectOffset: width }));
+          setState((prev) => ({ ...prev, valueSelectOffset: width }));
         }
         break;
       }
@@ -307,14 +326,18 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     if (mirror) {
       mirror.innerText = value;
       const width = Math.max(mirror.clientWidth, INPUT_MIN_SIZE);
-      setState(prev => ({ ...prev, fullInputValue: value, inputWidth: width }));
+      setState((prev) => ({
+        ...prev,
+        fullInputValue: value,
+        inputWidth: width,
+      }));
     }
   };
 
   // 重置输入
   const resetInput = (callback?: () => void) => {
     setInputValue("", callback);
-    setState(prev => ({ ...prev, inputWidth: INPUT_MIN_SIZE }));
+    setState((prev) => ({ ...prev, inputWidth: INPUT_MIN_SIZE }));
   };
 
   // 获取输入值
@@ -330,7 +353,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     // 属性值搜索
     if (
       attribute &&
-      props.attributes.filter(item => item.key === attribute.key).length > 0
+      props.attributes.filter((item) => item.key === attribute.key).length > 0
     ) {
       if (values.length <= 0) {
         return false;
@@ -343,12 +366,16 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
       }
       const list = inputValue
         .split("|")
-        .filter(item => item.trim().length > 0)
-        .map(item => ({ name: item.trim() }));
+        .filter((item) => item.trim().length > 0)
+        .map((item) => ({ name: item.trim() }));
       props.dispatchTagEvent(type, { attr: null, values: list });
     }
 
-    setState(prev => ({ ...prev, showAttrSelect: false, showValueSelect: false }));
+    setState((prev) => ({
+      ...prev,
+      showAttrSelect: false,
+      showValueSelect: false,
+    }));
 
     if (props.type !== "edit") {
       resetInput();
@@ -357,7 +384,9 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
   };
 
   // 输入框变化
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setInputValue(e.target.value);
   };
 
@@ -373,29 +402,31 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     if (attr && attr.key) {
       const str = attr.name + ": ";
       const { inputValue } = state;
-      
+
       if (inputValue.indexOf(str) >= 0) {
         selectValue();
       } else {
         setInputValue(str);
       }
-      setState(prev => ({ ...prev, values: [] }));
+      setState((prev) => ({ ...prev, values: [] }));
     }
     focusInput();
   };
 
   // 值变化
   const handleValueChange = (values: any[]) => {
-    setState(prev => ({ ...prev, values }));
+    setState((prev) => ({ ...prev, values }));
     setInputValue(
-      (state.attribute?.name ?? "") + ": " + values.map(item => item.name).join(" | ")
+      (state.attribute?.name ?? "") +
+        ": " +
+        values.map((item) => item.name).join(" | ")
     );
     focusInput();
   };
 
   // 值选择完成
   const handleValueSelect = (values: any[]) => {
-    setState(prev => ({ ...prev, values }));
+    setState((prev) => ({ ...prev, values }));
 
     if (values.length <= 0) {
       setInputValue((state.attribute?.name ?? "") + ": ");
@@ -404,7 +435,7 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
 
     if (values.length > 0 && state.attribute) {
       const key = state.attribute.key;
-      if (attributes.filter(item => item.key === key).length > 0) {
+      if (attributes.filter((item) => item.key === key).length > 0) {
         const type = props.type || "add";
         dispatchTagEvent(type, {
           attr: state.attribute,
@@ -438,46 +469,48 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
   const handlePaste = (e: React.ClipboardEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     const { attribute } = state;
-    
+
     if (!attribute || attribute.type === "input") {
       let value = "";
-      
+
       try {
         const clipboardData = e.clipboardData;
         value = clipboardData.getData("Text") || "";
       } catch (_) {}
-      
+
       if (/^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/.test(value)) {
         value = value.replace(/[\r\n\t,，\s]+/g, "|");
       } else {
         value = value.replace(/[\r\n\t,，]+/g, "|");
       }
-      
+
       value = value
         .split("|")
-        .map(item => item.trim())
-        .filter(item => item.length > 0)
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0)
         .join(" | ");
-      
+
       const input = inputRef.current;
       // @ts-ignore
       const start = input?.selectionStart;
       // @ts-ignore
       const end = input?.selectionEnd;
       const { inputValue } = state;
-      
+
       // 覆盖选择区域
       const curValue =
-        inputValue.substring(0, start!) + value + inputValue.substring(end!, inputValue.length);
-      
+        inputValue.substring(0, start!) +
+        value +
+        inputValue.substring(end!, inputValue.length);
+
       // input 属性情况
       if (attribute && attribute.type === "input") {
         setInputValue(curValue, focusInput);
         return;
       }
-      
+
       if (inputValue.length > 0) {
         setInputValue(curValue, focusInput);
       } else {
@@ -489,42 +522,44 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
   // 处理键盘事件
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!keys[e.keyCode.toString()]) return;
-    
+
     if (props.hidden) {
       return props.handleKeyDown?.(e);
     }
-    
+
     const { inputValue } = state;
-    
-    if (keys[e.keyCode.toString()] === "backspace" && inputValue.length > 0) return;
-    
+
+    if (keys[e.keyCode.toString()] === "backspace" && inputValue.length > 0)
+      return;
+
     if (
-      (keys[e.keyCode.toString()] === "left" || keys[e.keyCode.toString()] === "right") &&
+      (keys[e.keyCode.toString()] === "left" ||
+        keys[e.keyCode.toString()] === "right") &&
       inputValue.length > 0
     ) {
       setTimeout(refreshShow, 0);
       return;
     }
-    
+
     if (keys[e.keyCode.toString()] === "esc") {
       if (!inputValue) {
         context.close?.();
       }
       return handleValueCancel();
     }
-    
+
     e.preventDefault();
-    
+
     // 事件下传
     if (attrSelectRef.current) {
       if (attrSelectRef.current.handleKeyDown(e.keyCode) === false) return;
     }
-    
+
     if (valueSelectRef.current) {
       valueSelectRef.current.handleKeyDownForRenderMode(e.key);
       if (valueSelectRef.current.handleKeyDown(e.keyCode) === false) return;
     }
-    
+
     switch (keys[e.keyCode.toString()]) {
       case "enter":
       case "tab":
@@ -547,22 +582,27 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
   const setInfo = (info: any, callback?: () => void) => {
     const attribute = info.attr;
     const values = info.values;
-    
-    setState(prev => ({ ...prev, attribute, values }));
-    
+
+    setState((prev) => ({ ...prev, attribute, values }));
+
     if (attribute) {
       setInputValue(
-        attribute.name + ": " + values.map((item: any) => item.name).join(" | "),
+        attribute.name +
+          ": " +
+          values.map((item: any) => item.name).join(" | "),
         callback
       );
     } else {
-      setInputValue("" + values.map((item: any) => item.name).join(" | "), callback);
+      setInputValue(
+        "" + values.map((item: any) => item.name).join(" | "),
+        callback
+      );
     }
   };
 
   // 处理 Popover 状态改变
   const handleOpenChange = (open: boolean) => {
-    setState(prev => ({ ...prev, popoverOpen: open }));
+    setState((prev) => ({ ...prev, popoverOpen: open }));
     if (!open) {
       context.close?.();
     }
@@ -581,25 +621,27 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
     setInfo,
   }));
 
-  const { 
-    inputWidth, 
-    inputValue, 
-    fullInputValue, 
-    showAttrSelect, 
-    showValueSelect, 
-    attribute, 
+  const {
+    inputWidth,
+    inputValue,
+    fullInputValue,
+    showAttrSelect,
+    showValueSelect,
+    attribute,
     valueSelectOffset,
-    popoverOpen
+    popoverOpen,
   } = state;
-  
+
   // Only use valueStr from getAttrStrAndValueStr
   const valueStr = getAttrStrAndValueStr(inputValue).valueStr;
-  
+
   let maxHeight = SELECT_MIN_HEIGHT;
   try {
     if (wrapperRef.current) {
       maxHeight = Math.max(
-        window.innerHeight - wrapperRef.current.getBoundingClientRect().bottom - 60,
+        window.innerHeight -
+          wrapperRef.current.getBoundingClientRect().bottom -
+          60,
         SELECT_MIN_HEIGHT
       );
     }
@@ -607,7 +649,10 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
 
   // Update valueStr when inputValue changes
   useEffect(() => {
-    setState(prev => ({ ...prev, valueStr: getAttrStrAndValueStr(state.inputValue).valueStr }));
+    setState((prev) => ({
+      ...prev,
+      valueStr: getAttrStrAndValueStr(state.inputValue).valueStr,
+    }));
   }, [state.inputValue]);
 
   const renderValueSelect = () => {
@@ -635,49 +680,76 @@ const TagInput = forwardRef<TagInputRef, TagInputProps>((props, ref) => {
   return (
     <div
       ref={wrapperRef}
-      className={cn(
-        "relative inline-block",
-        hidden && "hidden"
-      )}
-      style={{ width: state.inputWidth || "auto" }}
+      className={cn("relative inline-block", hidden && "hidden")}
+      style={{
+        width: hidden ? 0 : active ? inputWidth + 6 : 6,
+        padding: type === "edit" && !hidden ? "0 8px" : "",
+      }}
+      onClick={handleInputClick}
     >
-      <Popover open={state.popoverOpen} onOpenChange={(open) => setState(prev => ({ ...prev, popoverOpen: open }))}>
+      <Popover
+        open={state.popoverOpen}
+        onOpenChange={(open) =>
+          setState((prev) => ({ ...prev, popoverOpen: open }))
+        }
+      >
         <PopoverTrigger asChild>
-          <div className="relative">
-            {type === "edit" ? (
-              <Textarea
-                ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          <div
+            style={{
+              width: hidden ? 0 : state.inputWidth + 6,
+              maxWidth: maxWidth ? maxWidth - 36 : 435,
+              display: active ? "" : "none",
+            }}
+          >
+            {type !== "edit" ? (
+              <Input
+                ref={inputRef as React.RefObject<HTMLInputElement>}
                 value={state.inputValue}
                 onChange={handleInputChange}
-                onClick={handleInputClick}
                 onKeyDown={handleKeyDown}
+                onClick={refreshShow}
+                onPaste={handlePaste}
                 className={cn(
-                  "min-h-[32px] w-full resize-none overflow-hidden border-none bg-transparent p-0 text-sm",
-                  "focus:outline-none focus:ring-0",
-                  "placeholder:text-muted-foreground"
+                  "h-full w-full border-none p-0 text-sm",
+                  "bg-transparent",
+                  "focus:outline-none focus:ring-0 focus-visible:ring-0",
+                  "placeholder:text-muted-foreground/70",
+                  "caret-foreground",
+                  "shadow-none"
                 )}
-                placeholder={context.attributesSelectTips}
                 style={{
-                  width: state.inputWidth || "auto",
-                  minWidth: "4ch",
+                  width: hidden ? 0 : state.inputWidth + 6,
+                  display: active ? "" : "none",
+                  maxWidth: maxWidth ? maxWidth - 36 : 435,
                 }}
+                data-type="tag-input"
               />
             ) : (
               <Input
                 ref={inputRef as React.RefObject<HTMLInputElement>}
                 value={state.inputValue}
                 onChange={handleInputChange}
-                onClick={handleInputClick}
                 onKeyDown={handleKeyDown}
+                onClick={refreshShow}
+                onPaste={handlePaste}
                 className={cn(
-                  "h-full w-full border-none bg-transparent p-0 text-sm",
+                  "h-full w-full border-none p-0 text-sm",
+                  "bg-transparent",
                   "focus:outline-none focus:ring-0 focus-visible:ring-0",
-                  "placeholder:text-muted-foreground"
+                  "placeholder:text-muted-foreground/70",
+                  "caret-foreground",
+                  "shadow-none"
                 )}
-                placeholder={context.attributesSelectTips}
                 style={{
-                  width: state.inputWidth || "auto",
-                  minWidth: "4ch",
+                  position: "absolute",
+                  width: hidden ? 0 : state.inputWidth + 30,
+                  display: active ? "" : "none",
+                  maxWidth: maxWidth ? maxWidth - 36 : 435,
+                  top: 0,
+                  left: 0,
+                  height: "100%",
+                  resize: "none",
+                  minHeight: 20,
                 }}
               />
             )}

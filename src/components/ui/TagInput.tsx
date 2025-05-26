@@ -17,17 +17,16 @@ import {
   CommandInput,
   CommandItem,
 } from "@/components/ui/command";
-import { mergeRefs } from "./util/mergeRefs.tsx";
 
-const keys: Record<string, string> = {
-  "8": "backspace",
-  "9": "tab",
-  "13": "enter",
-  "27": "esc",
-  "37": "left",
-  "38": "up",
-  "39": "right",
-  "40": "down",
+const keys: Record<string | number, string> = {
+  8: "backspace",
+  9: "tab",
+  13: "enter",
+  27: "esc",
+  37: "left",
+  38: "up",
+  39: "right",
+  40: "down",
 };
 
 const INPUT_MIN_SIZE = 0;
@@ -315,7 +314,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
     if (
       attribute &&
-      this.props.attributes.filter((item) => item.key === attribute.key).length > 0
+      this.props.attributes.filter((item) => item.key === attribute.key)
+        .length > 0
     ) {
       if (values.length <= 0) {
         return false;
@@ -468,7 +468,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   };
 
   private handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!keys[e.keyCode.toString()]) return;
+    if (!keys[e.keyCode]) return;
 
     if (this.props.hidden) {
       return this.props.handleKeyDown?.(e);
@@ -476,19 +476,19 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
     const { inputValue } = this.state;
 
-    if (keys[e.keyCode.toString()] === "backspace" && inputValue.length > 0)
+    if (keys[e.keyCode] === "backspace" && inputValue.length > 0)
       return;
 
     if (
-      (keys[e.keyCode.toString()] === "left" ||
-        keys[e.keyCode.toString()] === "right") &&
+      (keys[e.keyCode] === "left" ||
+        keys[e.keyCode] === "right") &&
       inputValue.length > 0
     ) {
       setTimeout(this.refreshShow, 0);
       return;
     }
 
-    if (keys[e.keyCode.toString()] === "esc") {
+    if (keys[e.keyCode] === "esc") {
       if (!inputValue) {
         this.context.close?.();
       }
@@ -503,7 +503,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
     if (this.valueSelectRef.current) {
       this.valueSelectRef.current.handleKeyDownForRenderMode(e.key);
-      if (this.valueSelectRef.current.handleKeyDown(e.keyCode) === false) return;
+      if (this.valueSelectRef.current.handleKeyDown(e.keyCode) === false)
+        return;
     }
 
     switch (keys[e.keyCode.toString()]) {
@@ -559,36 +560,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
     }
   }
 
-  private renderValueSelect() {
-    if (!this.state.showValueSelect || !this.state.attribute) {
-      return null;
-    }
-
-    const { type, values, render } = this.state.attribute;
-    return (
-      <ValueSelect
-        ref={this.valueSelectRef}
-        type={type ?? ""}
-        values={values ?? []}
-        render={render}
-        inputValue={this.state.valueStr}
-        offset={this.state.valueSelectOffset}
-        onChange={this.handleValueChange}
-        onSelect={this.handleValueSelect}
-        onCancel={this.handleValueCancel}
-        maxHeight={SELECT_MIN_HEIGHT}
-      />
-    );
-  }
-
   render() {
-    const {
-      active,
-      hidden,
-      maxWidth,
-      type,
-      isFocused
-    } = this.props;
+    const { active, hidden, maxWidth, type, isFocused } = this.props;
 
     const {
       inputWidth,
@@ -623,7 +596,12 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         onClick={this.handleInputClick}
       >
         <Popover
-          open={active && isFocused && (showAttrSelect || (showValueSelect && !!attribute && !!attribute.type))}
+          open={
+            active &&
+            isFocused &&
+            (showAttrSelect ||
+              (showValueSelect && !!attribute && !!attribute.type))
+          }
           onOpenChange={this.handleOpenChange}
         >
           <PopoverTrigger asChild>
@@ -643,6 +621,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   onClick={this.refreshShow}
                   onPaste={this.handlePaste}
                   onFocus={this.refreshShow}
+                  onInput={(e) => this.setFullInputValue(e.currentTarget.value)}
                   className={cn(
                     "h-full w-full border-none p-0 text-sm",
                     "bg-transparent",
@@ -698,14 +677,12 @@ class TagInput extends Component<TagInputProps, TagInputState> {
             </div>
           </PopoverTrigger>
           <PopoverContent
-            className={cn(
-              'p-0 border-none bg-white'
-            )}
+            className={cn("bg-white p-0 border-gray-200 ignore-outside-click")}
             align="start"
             sideOffset={20}
           >
             {showAttrSelect && (
-              <Command className="rounded-lg border-none shadow-none ignore-outside-click">
+              <Command className="rounded-none border-none shadow-none">
                 <CommandInput placeholder="Search attributes..." />
                 <CommandEmpty>No attributes found.</CommandEmpty>
                 <CommandGroup>
@@ -721,7 +698,20 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                 </CommandGroup>
               </Command>
             )}
-            {this.renderValueSelect()}
+            {showValueSelect && !!attribute && !!attribute.type && (
+              <ValueSelect
+                ref={this.valueSelectRef}
+                type={attribute.type}
+                values={attribute.values ?? []}
+                render={attribute.render}
+                inputValue={this.state.valueStr}
+                offset={this.state.valueSelectOffset}
+                onChange={this.handleValueChange}
+                onSelect={this.handleValueSelect}
+                onCancel={this.handleValueCancel}
+                maxHeight={maxHeight}
+              />
+            )}
           </PopoverContent>
         </Popover>
       </div>

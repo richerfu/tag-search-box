@@ -169,6 +169,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
     const input = this.inputRef.current;
     input?.focus();
     const value = this.state.inputValue;
+
     let pos = this.getAttrStrAndValueStr(value).pos;
     if (pos < 0) pos = -2;
 
@@ -228,15 +229,22 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       value = attribute.name + ":" + valueStr;
     }
 
-    // Update values list
-    let newValues = this.state.values;
     if (attribute !== this.state.attribute && attribute) {
-      newValues = valueStr.split("|").map((item) => ({ name: item.trim() }));
+      this.setState({
+        values: valueStr.split("|").map((item) => ({ name: item.trim() })),
+      });
     }
 
     if (this.props.type === "edit") {
       this.props.dispatchTagEvent("editing", { attr: attribute ?? undefined });
     }
+
+    this.setState(
+      {
+        attribute,
+      },
+      this.refreshShow
+    );
 
     if (mirror) {
       mirror.innerText = value;
@@ -246,10 +254,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
           inputValue: value,
           fullInputValue: value,
           inputWidth: width,
-          attribute,
-          values: newValues,
         },
-        callback
+        () => callback && callback()
       );
     } else if (callback) {
       setTimeout(callback, 0);
@@ -476,12 +482,10 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
     const { inputValue } = this.state;
 
-    if (keys[e.keyCode] === "backspace" && inputValue.length > 0)
-      return;
+    if (keys[e.keyCode] === "backspace" && inputValue.length > 0) return;
 
     if (
-      (keys[e.keyCode] === "left" ||
-        keys[e.keyCode] === "right") &&
+      (keys[e.keyCode] === "left" || keys[e.keyCode] === "right") &&
       inputValue.length > 0
     ) {
       setTimeout(this.refreshShow, 0);

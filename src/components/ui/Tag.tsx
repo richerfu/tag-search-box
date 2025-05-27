@@ -182,60 +182,69 @@ export const Tag = forwardRef<TagRef, TagProps>((props, ref) => {
   return (
     <div
       className={cn(
-        "inline-block min-h-5 relative align-middle",
-        inEditing && !active && "w-0"
+        "group relative inline-flex items-center gap-1",
+        "rounded-md border border-input bg-background px-2 py-1",
+        "text-sm transition-colors",
+        "hover:bg-accent hover:text-accent-foreground",
+        active && "border-primary",
+        inEditing && "border-primary ring-2 ring-primary/20",
+        focused === FocusPosType.TAG && "border-primary ring-2 ring-primary/20"
       )}
+      onClick={(e) => handleTagClick(e)}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      ref={contentRef}
     >
+      <div className="flex items-center gap-1">
+        {attr && (
+          <span className="text-muted-foreground">{formattedAttrStr}</span>
+        )}
+        <span className="font-medium">{valueStr}</span>
+      </div>
+
+      {removeable && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className={cn(
+                  "ml-1 rounded-sm opacity-70 ring-offset-background",
+                  "transition-opacity hover:opacity-100",
+                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  "disabled:pointer-events-none disabled:opacity-50"
+                )}
+                onClick={handleDelete}
+                disabled={!active}
+              >
+                <X className="h-3 w-3" />
+                <span className="sr-only">Remove tag</span>
+              </button>
+            </TooltipTrigger>
+            {active && (
+              <TooltipContent side="bottom" className="text-xs">
+                <p>Click to remove tag</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      )}
+
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div onClick={handleTagClick}>
-              {!inEditing && (
-                <Badge
-                  variant="secondary"
-                  className={cn(
-                    "group flex items-center gap-1 px-2 py-1 text-sm font-medium transition-colors",
-                    "hover:bg-secondary/80",
-                    active && "border-primary bg-primary/10 text-primary"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "cursor-pointer",
-                      active ? "text-primary" : "text-muted-foreground"
-                    )}
-                    onClick={(e) => handleTagClick(e, "attr")}
-                  >
-                    {formattedAttrStr}
-                  </span>
-                  <span
-                    className={cn(
-                      "cursor-pointer",
-                      active ? "text-primary" : "text-foreground"
-                    )}
-                    onClick={(e) => handleTagClick(e, "value")}
-                  >
-                    {valueStr}
-                  </span>
-                  {active && removeable && (
-                    <button
-                      onClick={handleDelete}
-                      className={cn(
-                        "ml-1 h-4 w-4 rounded-full transition-colors",
-                        "hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-                        "inline-flex items-center justify-center"
-                      )}
-                    >
-                      <X className="h-3 w-3" />
-                      <span className="sr-only">Remove tag</span>
-                    </button>
-                  )}
-                </Badge>
+            <div
+              className={cn(
+                "absolute inset-0 cursor-text",
+                "rounded-md",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               )}
-            </div>
+              role="button"
+              tabIndex={-1}
+            />
           </TooltipTrigger>
           {active && (
-            <TooltipContent>
+            <TooltipContent side="bottom" className="text-xs">
               <p>Click to modify. Press Enter to finish.</p>
             </TooltipContent>
           )}

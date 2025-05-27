@@ -592,10 +592,15 @@ class TagInput extends Component<TagInputProps, TagInputState> {
     return (
       <div
         ref={this.wrapperRef}
-        className={cn("relative inline-block", hidden && "hidden")}
+        className={cn(
+          "relative inline-flex items-center",
+          "rounded-md",
+          hidden && "hidden",
+          type === "edit" && !hidden && "px-1"
+        )}
         style={{
           width: hidden ? 0 : active ? inputWidth + 6 : 6,
-          padding: type === "edit" && !hidden ? "0 8px" : "",
+          height: "2rem",
         }}
         onClick={this.handleInputClick}
       >
@@ -610,6 +615,10 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         >
           <PopoverTrigger asChild>
             <div
+              className={cn(
+                "relative flex items-center",
+                "w-full h-8"
+              )}
               style={{
                 width: hidden ? 0 : inputWidth + 6,
                 maxWidth: maxWidth ? maxWidth - 36 : 435,
@@ -627,12 +636,13 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   onFocus={this.refreshShow}
                   onInput={(e) => this.setFullInputValue(e.currentTarget.value)}
                   className={cn(
-                    "h-full w-full border-none p-0 text-sm",
+                    "w-full h-8 border-none p-0 text-sm",
                     "bg-transparent",
                     "focus:outline-none focus:ring-0 focus-visible:ring-0",
                     "placeholder:text-muted-foreground/70",
                     "caret-foreground",
-                    "shadow-none"
+                    "shadow-none",
+                    "flex items-center"
                   )}
                   style={{
                     width: hidden ? 0 : inputWidth + 6,
@@ -651,12 +661,13 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   onPaste={this.handlePaste}
                   onFocus={this.refreshShow}
                   className={cn(
-                    "h-full w-full border-none p-0 text-sm",
+                    "w-full h-8 border-none p-0 text-sm",
                     "bg-transparent",
                     "focus:outline-none focus:ring-0 focus-visible:ring-0",
                     "placeholder:text-muted-foreground/70",
                     "caret-foreground",
-                    "shadow-none"
+                    "shadow-none",
+                    "flex items-center"
                   )}
                   style={{
                     position: "absolute",
@@ -667,35 +678,53 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     left: 0,
                     height: "100%",
                     resize: "none",
-                    minHeight: 20,
                   }}
                 />
               )}
               <span
                 ref={this.inputMirrorRef}
-                className="invisible absolute left-0 top-0 whitespace-pre text-sm"
-                style={{ padding: "inherit" }}
+                className="invisible absolute left-0 top-0 whitespace-pre text-sm h-8 flex items-center"
+                style={{ 
+                  padding: "inherit",
+                }}
               >
                 {fullInputValue}
               </span>
             </div>
           </PopoverTrigger>
           <PopoverContent
-            className={cn("bg-white p-0 border-gray-200 ignore-outside-click")}
+            className={cn(
+              "w-[--radix-popover-trigger-width] p-0",
+              "rounded-md border bg-popover text-popover-foreground shadow-md",
+              "data-[state=open]:animate-in data-[state=closed]:animate-out",
+              "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+              "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+              "data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2",
+              "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+            )}
             align="start"
-            sideOffset={20}
+            sideOffset={4}
             alignOffset={valueSelectOffset}
           >
             {showAttrSelect && (
               <Command className="rounded-none border-none shadow-none">
-                <CommandInput placeholder="Search attributes..." />
-                <CommandEmpty>No attributes found.</CommandEmpty>
-                <CommandGroup>
+                <CommandInput 
+                  placeholder="Search attributes..." 
+                  className="h-9"
+                />
+                <CommandEmpty className="py-6 text-center text-sm">
+                  No attributes found.
+                </CommandEmpty>
+                <CommandGroup className="max-h-[300px] overflow-auto p-1">
                   {this.props.attributes.map((attr) => (
                     <CommandItem
                       key={attr.key}
                       onSelect={() => this.handleAttrSelect(attr)}
-                      className="cursor-pointer hover:bg-gray-50 data-[selected=true]:bg-gray-100"
+                      className={cn(
+                        "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+                        "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                      )}
                     >
                       {attr.name}
                     </CommandItem>

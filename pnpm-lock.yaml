@@ -65,6 +65,9 @@ importers:
       tea-component:
         specifier: ^2.8.0
         version: 2.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tw-animate-css:
+        specifier: ^1.3.0
+        version: 1.3.0
     devDependencies:
       '@rsbuild/core':
         specifier: ^1.3.15
@@ -1234,6 +1237,9 @@ packages:
   tslib@2.8.1:
     resolution: {integrity: sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==}
 
+  tw-animate-css@1.3.0:
+    resolution: {integrity: sha512-jrJ0XenzS9KVuDThJDvnhalbl4IYiMQ/XvpA0a2FL8KmlK+6CSMviO7ROY/I7z1NnUs5NnDhlM6fXmF40xPxzw==}
+
   typed-styles@0.0.7:
     resolution: {integrity: sha512-pzP0PWoZUhsECYjABgCGQlRGL1n7tOHsgwYv3oIiEpJwGhFTuty/YNeduxQYzXXa3Ge5BdT6sHYIQYpl4uJ+5Q==}
 
@@ -2397,6 +2403,8 @@ snapshots:
   toggle-selection@1.0.6: {}
 
   tslib@2.8.1: {}
+
+  tw-animate-css@1.3.0: {}
 
   typed-styles@0.0.7: {}
 

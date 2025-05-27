@@ -684,6 +684,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
             className={cn("bg-white p-0 border-gray-200 ignore-outside-click")}
             align="start"
             sideOffset={20}
+            alignOffset={valueSelectOffset}
           >
             {showAttrSelect && (
               <Command className="rounded-none border-none shadow-none">

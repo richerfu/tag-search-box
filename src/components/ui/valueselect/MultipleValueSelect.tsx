@@ -6,7 +6,6 @@ import React, {
 } from "react";
 import { searchFilter } from "../util";
 
-// Shadcn UI 组件
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -257,9 +256,8 @@ const MultipleValueSelect = forwardRef<
 
   return (
     <Card
-      className="w-auto border shadow-sm"
+      className="w-auto border-none shadow-none"
       style={{
-        marginLeft: offset,
         maxWidth: maxWidth || 300,
       }}
       onClick={(e) => e.stopPropagation()}
@@ -316,18 +314,20 @@ const MultipleValueSelect = forwardRef<
         </ScrollArea>
       </CardContent>
 
-      <CardFooter className="flex justify-end gap-2 p-2 pt-3 border-t bg-slate-50">
-        <Button
-          variant="default"
-          size="sm"
-          onClick={handleSubmit}
-          disabled={select.length === 0}
-        >
-          OK
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleCancel}>
-          Cancel
-        </Button>
+      <CardFooter className="flex justify-end p-2 pt-2 border-t border-gray-200">
+        <div className="flex items-center space-x-2">
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={select.length === 0}
+            variant="default"
+          >
+            OK
+          </Button>
+          <Button variant="ghost" size="sm" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

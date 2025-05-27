@@ -27,7 +27,8 @@
     "react-dom": "^18.3.1",
     "react-onclickoutside": "^6.13.2",
     "tailwind-merge": "^3.3.0",
-    "tea-component": "^2.8.0"
+    "tea-component": "^2.8.0",
+    "tw-animate-css": "^1.3.0"
   },
   "devDependencies": {
     "@rsbuild/core": "^1.3.15",

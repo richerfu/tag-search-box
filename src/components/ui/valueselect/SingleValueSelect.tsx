@@ -178,9 +178,8 @@ const SingleValueSelect = forwardRef<SingleValueSelectRef, SingleValueSelectProp
 
   return (
     <Card 
-      className="border shadow-sm"
+      className="border-none shadow-none"
       style={{ 
-        marginLeft: offset, 
         maxWidth: maxWidth || 300
       }}
       onClick={(e) => e.stopPropagation()}

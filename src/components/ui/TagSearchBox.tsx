@@ -653,14 +653,15 @@ class ITagSearchBox extends Component<
       <div className="w-full">
         <div
           className={cn(
-            "flex w-full flex-wrap items-center gap-2",
+            "flex w-full flex-wrap gap-2",
             "rounded-md border border-input",
+            "pl-2 py-1",
             "bg-background text-sm shadow-sm",
             "ring-offset-background",
             "transition-colors duration-200",
             "focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            "min-h-10",
+            !active && "overflow-hidden",
             !disabled && [
               "cursor-text",
               "hover:border-primary/50",
@@ -668,10 +669,13 @@ class ITagSearchBox extends Component<
               active && "ring-2 ring-primary/20",
             ]
           )}
-          onClick={this.open}
-          ref={mergeRefs(this.searchBoxRef, forwardRef)}
+          ref={mergeRefs(this.searchWrapRef, forwardRef)}
         >
-          <div className="flex flex-1 flex-wrap items-center gap-1 px-3 py-1.5">
+          <div
+            className={cn("flex flex-1 flex-wrap gap-x-1.5 gap-y-1", "items-center")}
+            ref={mergeRefs(this.searchBoxRef)}
+            onClick={this.open}
+          >
             <TagSearchBoxContext.Provider
               value={{
                 attributesSelectTips,
@@ -679,22 +683,20 @@ class ITagSearchBox extends Component<
                 close: this.close,
               }}
             >
-              <div className="flex flex-wrap items-center gap-1">
+              <React.Fragment>
                 {tagList}
-                {tags.length === 0 && !active && (
-                  <div className="pointer-events-none text-muted-foreground/70 text-sm whitespace-nowrap flex items-center h-8">
-                    {tips}
-                  </div>
-                )}
-              </div>
+                <div
+                  className={cn(
+                    "pointer-events-none text-muted-foreground/70 text-sm whitespace-nowrap flex items-center"
+                  )}
+                >
+                  {tips}
+                </div>
+              </React.Fragment>
             </TagSearchBoxContext.Provider>
           </div>
 
-          <div className={cn(
-            "flex items-center gap-0.5",
-            "px-1 py-1.5",
-            tags.length > 0 ? "self-end" : "self-center"
-          )}>
+          <div className={cn("flex items-center gap-0.5", "bg-background")}>
             {!!active && tags.length > 0 && (
               <TooltipProvider>
                 <Tooltip>

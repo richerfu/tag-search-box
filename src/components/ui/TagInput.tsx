@@ -151,6 +151,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
   // Focus input
   public focusInput = () => {
+    console.log("focusInput", this.inputRef.current);
     if (!this.inputRef.current) return;
     this.inputRef.current.focus();
   };
@@ -600,7 +601,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         )}
         style={{
           width: hidden ? 0 : active ? inputWidth + 6 : 6,
-          height: "2rem",
         }}
         onClick={this.handleInputClick}
       >
@@ -615,10 +615,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         >
           <PopoverTrigger asChild>
             <div
-              className={cn(
-                "relative flex items-center",
-                "w-full h-8"
-              )}
+              className={cn("relative flex items-center")}
               style={{
                 width: hidden ? 0 : inputWidth + 6,
                 maxWidth: maxWidth ? maxWidth - 36 : 435,
@@ -636,13 +633,14 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   onFocus={this.refreshShow}
                   onInput={(e) => this.setFullInputValue(e.currentTarget.value)}
                   className={cn(
-                    "w-full h-8 border-none p-0 text-sm",
+                    "w-full border-none p-0 text-sm",
                     "bg-transparent",
                     "focus:outline-none focus:ring-0 focus-visible:ring-0",
                     "placeholder:text-muted-foreground/70",
                     "caret-foreground",
                     "shadow-none",
-                    "flex items-center"
+                    "flex items-center",
+                    "resize-none"
                   )}
                   style={{
                     width: hidden ? 0 : inputWidth + 6,
@@ -661,13 +659,15 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   onPaste={this.handlePaste}
                   onFocus={this.refreshShow}
                   className={cn(
-                    "w-full h-8 border-none p-0 text-sm",
+                    "w-full border-none p-0 text-sm",
                     "bg-transparent",
                     "focus:outline-none focus:ring-0 focus-visible:ring-0",
                     "placeholder:text-muted-foreground/70",
                     "caret-foreground",
                     "shadow-none",
-                    "flex items-center"
+                    "flex items-center",
+                    "resize-none",
+                    ""
                   )}
                   style={{
                     position: "absolute",
@@ -676,7 +676,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     maxWidth: maxWidth ? maxWidth - 36 : 435,
                     top: 0,
                     left: 0,
-                    height: "100%",
                     resize: "none",
                   }}
                 />
@@ -684,8 +683,11 @@ class TagInput extends Component<TagInputProps, TagInputState> {
               <span
                 ref={this.inputMirrorRef}
                 className="invisible absolute left-0 top-0 whitespace-pre text-sm h-8 flex items-center"
-                style={{ 
-                  padding: "inherit",
+                style={{
+                  padding: "0",
+                  width: "100%",
+                  lineHeight: "2rem",
+                  textAlign: "center",
                 }}
               >
                 {fullInputValue}
@@ -708,8 +710,9 @@ class TagInput extends Component<TagInputProps, TagInputState> {
           >
             {showAttrSelect && (
               <Command className="rounded-none border-none shadow-none">
-                <CommandInput 
-                  placeholder="Search attributes..." 
+                <CommandInput
+                  autoFocus={false}
+                  placeholder="Search attributes..."
                   className="h-9"
                 />
                 <CommandEmpty className="py-6 text-center text-sm">

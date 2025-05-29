@@ -681,12 +681,9 @@ class TagInput extends Component<TagInputProps, TagInputState> {
               )}
               <span
                 ref={this.inputMirrorRef}
-                className="invisible absolute left-0 top-0 whitespace-pre text-sm h-8 flex items-center"
+                className="invisible absolute left-0 top-0 whitespace-pre text-sm"
                 style={{
-                  padding: "0",
-                  width: "100%",
-                  lineHeight: "2rem",
-                  textAlign: "center",
+                  top: -9999
                 }}
               >
                 {fullInputValue}

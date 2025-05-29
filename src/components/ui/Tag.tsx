@@ -7,7 +7,6 @@ import React, {
 import { TagInput } from "./TagInput";
 import { FocusPosType } from "./TagSearchBox";
 import { X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -187,8 +186,8 @@ export const Tag = forwardRef<TagRef, TagProps>((props, ref) => {
         "text-sm transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
         active && "border-primary",
-        inEditing && "border-primary ring-2 ring-primary/20",
-        focused === FocusPosType.TAG && "border-primary ring-2 ring-primary/20"
+        inEditing && "border-primary ring-1 ring-primary/20",
+        focused === FocusPosType.TAG && "border-primary ring-1 ring-primary/20"
       )}
       onClick={(e) => handleTagClick(e)}
       onKeyDown={handleKeyDown}
@@ -198,9 +197,9 @@ export const Tag = forwardRef<TagRef, TagProps>((props, ref) => {
     >
       <div className="flex items-center gap-1">
         {attr && (
-          <span className="text-muted-foreground">{formattedAttrStr}</span>
+          <span className="text-muted-foreground/80 text-xs">{formattedAttrStr}</span>
         )}
-        <span className="font-medium">{valueStr}</span>
+        <span className="font-medium text-xs">{valueStr}</span>
       </div>
 
       {removeable && (
@@ -211,7 +210,7 @@ export const Tag = forwardRef<TagRef, TagProps>((props, ref) => {
                 className={cn(
                   "ml-1 rounded-sm opacity-70 ring-offset-background",
                   "transition-opacity hover:opacity-100",
-                  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+                  "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
                   "disabled:pointer-events-none disabled:opacity-50"
                 )}
                 onClick={handleDelete}
@@ -237,7 +236,7 @@ export const Tag = forwardRef<TagRef, TagProps>((props, ref) => {
               className={cn(
                 "absolute inset-0 cursor-text",
                 "rounded-md",
-                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
               )}
               role="button"
               tabIndex={-1}

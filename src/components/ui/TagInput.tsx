@@ -711,6 +711,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                 <CommandInput
                   placeholder="Search attributes..."
                   className="h-9"
+                  onClick={(e) => e.stopPropagation()}
                 />
                 <CommandEmpty className="py-6 text-center text-sm">
                   No attributes found.

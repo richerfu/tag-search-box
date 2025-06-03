@@ -1,5 +1,5 @@
 import React, { Component, createRef } from "react";
-import { AttributeValue } from "./AttributeSelect";
+import { AttributeSelect, AttributeValue } from "./AttributeSelect";
 import { ValueSelect } from "./valueselect/ValueSelect.tsx";
 import { TagSearchBoxContext } from "./TagSearchboxContext";
 import { cn } from "@/lib/utils";
@@ -80,7 +80,6 @@ interface TagInputState {
   showAttrSelect: boolean;
   showValueSelect: boolean;
   valueSelectOffset: number;
-  valueStr: string;
 }
 
 class TagInput extends Component<TagInputProps, TagInputState> {
@@ -104,7 +103,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       showAttrSelect: false,
       showValueSelect: false,
       valueSelectOffset: 0,
-      valueStr: "",
     };
   }
 
@@ -353,6 +351,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   };
 
   private handleAttrSelect = (attr: any) => {
+    console.log("handleAttrSelect", attr);
     if (attr && attr.key) {
       const str = attr.name + ": ";
       const { inputValue } = this.state;
@@ -542,16 +541,9 @@ class TagInput extends Component<TagInputProps, TagInputState> {
     }
   };
 
-  componentDidUpdate(prevProps: TagInputProps, prevState: TagInputState) {
-    if (prevState.inputValue !== this.state.inputValue) {
-      this.setState({
-        valueStr: this.getAttrStrAndValueStr(this.state.inputValue).valueStr,
-      });
-    }
-  }
-
   render() {
-    const { active, hidden, maxWidth, type, isFocused } = this.props;
+    const { active, hidden, maxWidth, type, isFocused, attributes } =
+      this.props;
 
     const {
       inputWidth,
@@ -562,6 +554,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       attribute,
       valueSelectOffset,
     } = this.state;
+    const { valueStr, attrStr } = this.getAttrStrAndValueStr(inputValue);
 
     let maxHeight = SELECT_MIN_HEIGHT;
     try {
@@ -693,30 +686,13 @@ class TagInput extends Component<TagInputProps, TagInputState> {
             }}
           >
             {showAttrSelect && (
-              <Command className="rounded-none border-none shadow-none">
-                <CommandInput
-                  placeholder="Search attributes..."
-                  className="h-9"
-                  onClick={(e) => e.stopPropagation()}
-                />
-                <CommandEmpty className="py-6 text-center text-sm">
-                  No attributes found.
-                </CommandEmpty>
-                <CommandGroup className="max-h-[300px] overflow-auto p-1">
-                  {this.props.attributes.map((attr) => (
-                    <CommandItem
-                      key={attr.key}
-                      onSelect={() => this.handleAttrSelect(attr)}
-                      className={cn(
-                        "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-                        "aria-selected:bg-accent aria-selected:text-accent-foreground"
-                      )}
-                    >
-                      {attr.name}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
+              <AttributeSelect
+                ref={this.attrSelectRef}
+                attributes={attributes}
+                inputValue={attrStr}
+                maxHeight={maxHeight}
+                onSelect={this.handleAttrSelect}
+              />
             )}
             {showValueSelect && !!attribute && !!attribute.type && (
               <ValueSelect
@@ -724,7 +700,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                 type={attribute.type}
                 values={attribute.values ?? []}
                 render={attribute.render}
-                inputValue={this.state.valueStr}
+                inputValue={valueStr}
                 offset={this.state.valueSelectOffset}
                 onChange={this.handleValueChange}
                 onSelect={this.handleValueSelect}

@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import React, { Component } from "react";
 import { PureInput } from "./PureInput";
 import { SingleValueSelect } from "./SingleValueSelect";
 import { MultipleValueSelect } from "./MultipleValueSelect";
@@ -26,7 +20,7 @@ interface ValueSelectProps {
   /**
    * 当前输入值
    */
-  inputValue?: string;
+  inputValue: string;
   /**
    * 自定义渲染
    */
@@ -43,78 +37,76 @@ interface ValueSelectRef {
   handleKeyDownForRenderMode: (operationalKey: string) => boolean;
 }
 
-const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
-  (props, ref) => {
+interface ValueSelectState {
+  values: any[];
+}
+
+class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
+  private mount: boolean = false;
+  private select: any = null;
+  private operationalKeyDownListener: (key: string) => void = () => {};
+
+  constructor(props: ValueSelectProps) {
+    super(props);
+    this.state = {
+      values: Array.isArray(props.values) ? props.values : []
+    };
+  }
+
+  componentDidMount() {
+    this.mount = true;
+    const { values: propsValues } = this.props;
+
+    if (typeof propsValues === "function") {
+      const result = propsValues();
+
+      // Promise处理
+      if (result && "then" in result) {
+        result.then((fetchedValues) => {
+          if (this.mount) {
+            this.setState({ values: fetchedValues });
+          }
+        });
+      } else {
+        if (this.mount) {
+          this.setState({ values: result });
+        }
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.mount = false;
+  }
+
+  handleKeyDown = (keyCode: string | number) => {
+    if (this.select && this.select.handleKeyDown) {
+      return this.select.handleKeyDown(keyCode);
+    }
+    return true;
+  };
+
+  handleKeyDownForRenderMode = (operationalKey: string) => {
+    if (this.props.render) {
+      this.operationalKeyDownListener(operationalKey);
+    }
+    return true;
+  };
+
+  render() {
+    const { values } = this.state;
     const {
       type,
-      values: propsValues,
       inputValue,
       onChange,
       onSelect,
       onCancel,
       offset = 0,
       maxHeight,
-      render,
-    } = props;
+      render
+    } = this.props;
 
-    const [values, setValues] = useState<any[]>(
-      Array.isArray(propsValues) ? propsValues : []
-    );
-    const selectRef = useRef<any>(null);
-    const operationalKeyDownListenerRef = useRef<(key: string) => void>(
-      () => {}
-    );
-
-    // 组件挂载状态追踪
-    const mountedRef = useRef<boolean>(false);
-
-    useEffect(() => {
-      mountedRef.current = true;
-
-      // 处理函数型values
-      if (typeof propsValues === "function") {
-        const result = propsValues();
-
-        // Promise处理
-        if (result && "then" in result) {
-          result.then((fetchedValues) => {
-            if (mountedRef.current) {
-              setValues(fetchedValues);
-            }
-          });
-        } else {
-          if (mountedRef.current) {
-            setValues(result);
-          }
-        }
-      }
-
-      return () => {
-        mountedRef.current = false;
-      };
-    }, [propsValues]);
-
-    // 处理键盘事件
-    const handleKeyDown = (keyCode: string | number) => {
-      if (selectRef.current && selectRef.current.handleKeyDown) {
-        return selectRef.current.handleKeyDown(keyCode);
-      }
-      return true;
-    };
-
-    // 处理渲染模式的键盘事件
-    const handleKeyDownForRenderMode = (operationalKey: string) => {
-      if (render) {
-        operationalKeyDownListenerRef.current(operationalKey);
-      }
-      return true;
-    };
-
-    // 暴露方法给父组件
-    useImperativeHandle(ref, () => ({
-      handleKeyDown,
-      handleKeyDownForRenderMode,
-    }));
+    console.log(values)
 
     // 如果提供了自定义渲染函数
     if (render) {
@@ -122,9 +114,9 @@ const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
         <DropdownMenu>
           {render({
             onOperationalKeyDown: (listener) => {
-              operationalKeyDownListenerRef.current = listener as any;
+              this.operationalKeyDownListener = listener as any;
             },
-            inputValue: inputValue!,
+            inputValue,
             onSelect: onSelect!,
             onCancel: onCancel!,
           })}
@@ -154,8 +146,22 @@ const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
     // 根据不同类型渲染不同组件
     switch (typeOptions[0]) {
       case "input":
-        // @ts-ignore
-        return <PureInput ref={selectRef} {...commonProps} />;
+        // PureInput requires all callbacks to be non-optional
+        const inputProps = {
+          values,
+          inputValue: inputValue || "",
+          onChange: onChange || (() => {}),
+          onSelect: onSelect || (() => {}),
+          onCancel: onCancel || (() => {}),
+          offset,
+          maxHeight
+        };
+        return (
+          <PureInput
+            ref={(select) => (this.select = select)}
+            {...inputProps}
+          />
+        );
 
       case "single":
         const singleOptions = typeOptions[1];
@@ -174,7 +180,7 @@ const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
           <SingleValueSelect
             {...commonProps}
             {...singleOptions}
-            ref={selectRef}
+            ref={(select) => (this.select = select)}
           />
         );
 
@@ -195,7 +201,7 @@ const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
           <MultipleValueSelect
             {...commonProps}
             {...multipleOptions}
-            ref={selectRef}
+            ref={(select) => (this.select = select)}
           />
         );
 
@@ -203,6 +209,22 @@ const ValueSelect = forwardRef<ValueSelectRef, ValueSelectProps>(
         return null;
     }
   }
-);
+}
+
+// Create a forwardRef wrapper to maintain the ref functionality
+const ValueSelect = React.forwardRef<ValueSelectRef, ValueSelectProps>((props, ref) => {
+  const componentRef = React.useRef<IValueSelect>(null);
+
+  React.useImperativeHandle(ref, () => ({
+    handleKeyDown: (keyCode: string | number) => {
+      return componentRef.current?.handleKeyDown(keyCode);
+    },
+    handleKeyDownForRenderMode: (operationalKey: string) => {
+      return componentRef.current?.handleKeyDownForRenderMode(operationalKey) ?? true;
+    }
+  }));
+
+  return <IValueSelect {...props} ref={componentRef} />;
+});
 
 export { ValueSelect };

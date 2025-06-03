@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { Component } from "react";
 import { DropdownMenu } from "@/components/ui/dropdown";
-import { CommandItem, Command } from "@/components/ui/command";
+import { CommandItem, Command, CommandGroup } from "@/components/ui/command";
 import { TagSearchBoxContext } from "./TagSearchboxContext";
+import { cn } from "@/lib/utils";
 
 export interface Value {
   /**
@@ -176,22 +177,35 @@ const keys: Record<
   "40": "down",
 };
 
-export const AttributeSelect: React.FC<AttributeSelectProps> = ({
-  attributes,
-  inputValue,
-  onSelect,
-  maxHeight,
-}) => {
-  const [select, setSelect] = useState(-1);
-  const context = useContext(TagSearchBoxContext);
-  const { disableAttributesFilter, attributesSelectTips } = context;
+export class AttributeSelect extends Component<
+  AttributeSelectProps,
+  AttributeSelectState
+> {
+  static contextType = TagSearchBoxContext;
+  declare context: React.ContextType<typeof TagSearchBoxContext>;
 
-  // 重置选择状态当输入值改变时
-  useEffect(() => {
-    setSelect(-1);
-  }, [inputValue]);
+  constructor(props: AttributeSelectProps) {
+    super(props);
+    this.state = {
+      select: -1,
+      lastInputValue: props.inputValue,
+    };
+  }
 
-  const getUseableList = useCallback(() => {
+  static getDerivedStateFromProps(
+    props: AttributeSelectProps,
+    state: AttributeSelectState
+  ) {
+    if (state.lastInputValue !== props.inputValue) {
+      return { select: -1, lastInputValue: props.inputValue };
+    }
+    return null;
+  }
+
+  getUseableList() {
+    const { attributes, inputValue } = this.props;
+    const { disableAttributesFilter } = this.context;
+
     if (disableAttributesFilter) {
       return attributes;
     }
@@ -202,95 +216,85 @@ export const AttributeSelect: React.FC<AttributeSelectProps> = ({
     return attributes.filter(
       (item) => item.name.includes(inputValue) || item.name.includes(fuzzyValue)
     );
-  }, [attributes, inputValue, disableAttributesFilter]);
+  }
 
-  const getAttribute = useCallback(
-    (selectIndex: number) => {
-      const list = getUseableList();
-      if (selectIndex < list.length) {
-        return list[selectIndex];
-      }
-    },
-    [getUseableList]
-  );
+  getAttribute(selectIndex: number) {
+    const list = this.getUseableList();
+    if (selectIndex < list.length) {
+      return list[selectIndex];
+    }
+  }
 
-  const move = useCallback(
-    (step: number) => {
-      const list = getUseableList();
-      if (list.length <= 0) return;
-      setSelect((prev) => (prev + step + list.length) % list.length);
-    },
-    [getUseableList]
-  );
+  move = (step: number) => {
+    const list = this.getUseableList();
+    if (list.length <= 0) return;
+    this.setState((prevState) => ({
+      select: (prevState.select + step + list.length) % list.length,
+    }));
+  };
 
-  const handleKeyDown = useCallback(
-    (keyCode: string) => {
-      if (!keys[keyCode]) return;
+  handleKeyDown = (keyCode: string) => {
+    if (!keys[keyCode]) return;
 
-      switch (keys[keyCode]) {
-        case "enter":
-        case "tab":
-          if (select < 0) break;
-          if (onSelect) {
-            onSelect(getAttribute(select)!);
-          }
-          return false;
-        case "up":
-          move(-1);
-          break;
-        case "down":
-          move(1);
-          break;
-      }
-    },
-    [select, onSelect, getAttribute, move]
-  );
+    const { onSelect } = this.props;
+    const { select } = this.state;
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent, index: number) => {
-      e.stopPropagation();
-      e.nativeEvent.stopPropagation();
-      if (onSelect) {
-        onSelect(getAttribute(index)!);
-      }
-    },
-    [onSelect, getAttribute]
-  );
+    switch (keys[keyCode]) {
+      case "enter":
+      case "tab":
+        if (select < 0) break;
+        if (onSelect) {
+          onSelect(this.getAttribute(select)!);
+        }
+        return false;
+      case "up":
+        this.move(-1);
+        break;
+      case "down":
+        this.move(1);
+        break;
+    }
+  };
 
-  const list = getUseableList().map((item, index) => (
-    <CommandItem
-      key={index}
-      //   selected={select === index}
-      onClick={(e) => handleClick(e, index)}
-    >
-      {item.name}
-    </CommandItem>
-  ));
+  handleClick = (index: number) => {
+    const { onSelect } = this.props;
+    if (onSelect) {
+      onSelect(this.getAttribute(index)!);
+    }
+  };
 
-  if (list.length === 0) return null;
+  render() {
+    const { maxHeight } = this.props;
+    const { select } = this.state;
+    const { attributesSelectTips } = this.context;
 
-  return (
-    <DropdownMenu>
-      <Command>
-        {attributesSelectTips && (
-          <CommandItem disabled>{attributesSelectTips}</CommandItem>
+    const list = this.getUseableList().map((item, index) => (
+      <CommandItem
+        key={index}
+        onSelect={(e) => this.handleClick(index)}
+        className={cn(
+          "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+          "aria-selected:bg-accent aria-selected:text-accent-foreground",
+          select === index && "bg-accent text-accent-foreground"
         )}
-        {list}
-      </Command>
-    </DropdownMenu>
-  );
-};
+      >
+        {item.name}
+      </CommandItem>
+    ));
 
-// 暴露 handleKeyDown 方法给父组件
-export const useAttributeSelectRef = (ref: React.RefObject<any>) => {
-  const handleKeyDown = useCallback(
-    (keyCode: string) => {
-      if (ref.current) {
-        ref.current.handleKeyDown(keyCode);
-      }
-    },
-    [ref]
-  );
+    if (list.length === 0) return null;
 
-  return { handleKeyDown };
-};
+    return (
+      <DropdownMenu>
+        <Command style={{ maxHeight: maxHeight }}>
+          <CommandGroup>
+            {attributesSelectTips && (
+              <CommandItem disabled>{attributesSelectTips}</CommandItem>
+            )}
+            {list}
+          </CommandGroup>
+        </Command>
+      </DropdownMenu>
+    );
+  }
+}

@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import React, { Component } from "react";
 import { searchFilter } from "../util";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -59,30 +54,22 @@ interface IMultipleValueSelectRef {
   handleKeyDown: (keyCode: string | number) => boolean | undefined;
 }
 
-const MultipleValueSelect = forwardRef<
-  IMultipleValueSelectRef,
-  IMultipleValueSelectProps
->((props, ref) => {
-  const {
-    values,
-    inputValue,
-    offset = 0,
-    all = true,
-    maxHeight = 350,
-    searchable = false,
-    maxWidth,
-    itemRender = (x) => x,
-    onSelect,
-    onChange,
-    onCancel,
-  } = props;
+interface IMultipleValueSelectState {
+  curIndex: number;
+  select: number[];
+  searchValue: string;
+  lastInputValue: string;
+}
 
-  // 初始化选择项
-  const initSelect = () => {
-    const list = inputValue.split("|").map((i) => i.trim());
+class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipleValueSelectState> {
+  constructor(props: IMultipleValueSelectProps) {
+    super(props);
+    
+    // Initialize selection
+    const list = props.inputValue.split("|").map((i) => i.trim());
     const select: number[] = [];
 
-    const formattedValues = values.map((item) => ({
+    const formattedValues = props.values.map((item) => ({
       ...item,
       name: item.name.trim(),
     }));
@@ -93,43 +80,59 @@ const MultipleValueSelect = forwardRef<
       }
     });
 
-    return select;
-  };
+    this.state = {
+      curIndex: 0,
+      select,
+      searchValue: "",
+      lastInputValue: props.inputValue
+    };
+  }
 
-  const [curIndex, setCurIndex] = useState(0);
-  const [select, setSelect] = useState<number[]>(initSelect());
-  const [searchValue, setSearchValue] = useState("");
-  const [lastInputValue, setLastInputValue] = useState(inputValue);
-
-  // 处理输入值变更
-  useEffect(() => {
-    if (lastInputValue !== inputValue) {
-      setSelect(initSelect());
-      setLastInputValue(inputValue);
-    }
-  }, [inputValue]);
-
-  // 初始化时若无选中项则触发 onSelect
-  useEffect(() => {
+  componentDidMount() {
+    const { select } = this.state;
+    const { onSelect } = this.props;
+    
     if (select.length <= 0 && onSelect) {
-      onSelect(getValue(select));
+      onSelect(this.getValue(select));
     }
-  }, []);
+  }
 
-  // 获取选中的值
-  const getValue = (selectedIndexes: number[]) => {
-    return selectedIndexes.map((i) => values[i]);
+  static getDerivedStateFromProps(props: IMultipleValueSelectProps, state: IMultipleValueSelectState) {
+    if (state.lastInputValue !== props.inputValue) {
+      const list = props.inputValue.split("|").map((i) => i.trim());
+      const select: number[] = [];
+
+      const formattedValues = props.values.map((item) => ({
+        ...item,
+        name: item.name.trim(),
+      }));
+
+      formattedValues.forEach((item, index) => {
+        if (list.indexOf(item.name) >= 0) {
+          select.push(index);
+        }
+      });
+
+      return { select, lastInputValue: props.inputValue };
+    }
+    return null;
+  }
+
+  getValue = (selectedIndexes: number[]) => {
+    return selectedIndexes.map((i) => this.props.values[i]);
   };
 
-  // 键盘操作处理
-  const handleKeyDown = (keyCode: string | number) => {
+  handleKeyDown = (keyCode: string | number) => {
     if (!keys[keyCode as keyof typeof keys]) return;
+
+    const { curIndex, select } = this.state;
+    const { onChange, onSelect } = this.props;
 
     switch (keys[keyCode as keyof typeof keys]) {
       case "tab":
         if (curIndex < 0) return false;
         if (curIndex === 0) {
-          handleSelectAll();
+          this.handleSelectAll();
           return false;
         }
 
@@ -142,35 +145,34 @@ const MultipleValueSelect = forwardRef<
           newSelect.push(curIndex - 1);
         }
 
-        setSelect(newSelect);
-        onChange?.(getValue(newSelect));
+        this.setState({ select: newSelect });
+        onChange?.(this.getValue(newSelect));
         return false;
 
       case "enter":
-        onSelect?.(getValue(select));
+        onSelect?.(this.getValue(select));
         return false;
 
       case "up":
-        move(-1);
+        this.move(-1);
         break;
 
       case "down":
-        move(1);
+        this.move(1);
         break;
     }
   };
 
-  // 上下移动焦点
-  const move = (step: number) => {
+  move = (step: number) => {
+    const { values } = this.props;
     if (values.length <= 0) return;
 
-    setCurIndex((prevIndex) => {
-      return (prevIndex + step + (values.length + 1)) % (values.length + 1);
-    });
+    this.setState(prevState => ({
+      curIndex: (prevState.curIndex + step + (values.length + 1)) % (values.length + 1)
+    }));
   };
 
-  // 点击列表项
-  const handleClick = (e: React.MouseEvent, index: number) => {
+  handleClick = (e: React.MouseEvent, index: number) => {
     e.stopPropagation();
 
     if (
@@ -180,6 +182,8 @@ const MultipleValueSelect = forwardRef<
       return;
     }
 
+    const { select } = this.state;
+    const { onChange } = this.props;
     const newSelect = [...select];
     const pos = newSelect.indexOf(index);
 
@@ -189,148 +193,171 @@ const MultipleValueSelect = forwardRef<
       newSelect.push(index);
     }
 
-    setSelect(newSelect);
-    onChange?.(getValue(newSelect));
+    this.setState({ select: newSelect });
+    onChange?.(this.getValue(newSelect));
   };
 
-  // 全选/取消全选
-  const handleSelectAll = (e?: React.MouseEvent) => {
+  handleSelectAll = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    const { select } = this.state;
+    const { values, onChange } = this.props;
 
     if (select.length === values.length) {
-      setSelect([]);
+      this.setState({ select: [] });
       onChange?.([]);
     } else {
-      setSelect(values.map((_, index) => index));
+      const newSelect = values.map((_, index) => index);
+      this.setState({ select: newSelect });
       onChange?.(values);
     }
   };
 
-  // 确认选择
-  const handleSubmit = (e: React.MouseEvent) => {
+  handleSubmit = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onSelect?.(getValue(select));
+    const { select } = this.state;
+    const { onSelect } = this.props;
+    onSelect?.(this.getValue(select));
   };
 
-  // 取消选择
-  const handleCancel = (e: React.MouseEvent) => {
+  handleCancel = (e: React.MouseEvent) => {
     e.stopPropagation();
+    const { onCancel } = this.props;
     onCancel?.();
   };
 
-  // 暴露方法给父组件
-  useImperativeHandle(ref, () => ({
-    handleKeyDown,
+  render() {
+    const { curIndex, select, searchValue } = this.state;
+    const {
+      values,
+      offset = 0,
+      all = true,
+      maxHeight = 350,
+      searchable = false,
+      maxWidth,
+      itemRender = (x) => x
+    } = this.props;
+
+    const filteredItems = values
+      .map((item, index) => ({ ...item, index }))
+      .filter(({ name }) => searchFilter(name, searchValue))
+      .map(({ index, ...item }) => (
+        <div
+          key={index}
+          className={cn(
+            "flex items-center p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors",
+            curIndex === index + 1 ? "bg-slate-100" : ""
+          )}
+          onClick={(e) => this.handleClick(e, index)}
+        >
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={select.indexOf(index) >= 0}
+              id={`item-${index}`}
+              className="data-[state=checked]:bg-blue-500"
+            />
+            <label
+              htmlFor={`item-${index}`}
+              className="text-sm cursor-pointer"
+              style={item.style || {}}
+              title={item.name}
+            >
+              {itemRender(item.name, item)}
+            </label>
+          </div>
+        </div>
+      ));
+
+    return (
+      <Card
+        className="w-auto border-none shadow-none"
+        style={{
+          maxWidth: maxWidth || 300,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {searchable && (
+          <div className="p-2 border-b">
+            <Input
+              placeholder="搜索..."
+              value={searchValue}
+              onChange={(e) => this.setState({ searchValue: e.target.value })}
+              className="h-8"
+            />
+          </div>
+        )}
+
+        <CardContent className="p-0">
+          <ScrollArea
+            className="h-full max-h-[300px]"
+            style={{ maxHeight: maxHeight - 50 }}
+          >
+            <div className="p-1">
+              {all && !searchValue && (
+                <div
+                  className={cn(
+                    "flex items-center p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors",
+                    curIndex === 0 ? "bg-slate-100" : ""
+                  )}
+                  onClick={this.handleSelectAll}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={select.length === values.length}
+                      id="select-all"
+                      className="data-[state=checked]:bg-blue-500"
+                    />
+                    <label
+                      htmlFor="select-all"
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      Select All
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {filteredItems.length === 0 ? (
+                <div className="flex items-center justify-center p-4 text-sm text-slate-500">
+                  没有匹配的结果
+                </div>
+              ) : (
+                filteredItems
+              )}
+            </div>
+          </ScrollArea>
+        </CardContent>
+
+        <CardFooter className="flex justify-end p-2 pt-2 border-t border-gray-200">
+          <div className="flex items-center space-x-2">
+            <Button
+              size="sm"
+              onClick={this.handleSubmit}
+              disabled={select.length === 0}
+              variant="default"
+            >
+              OK
+            </Button>
+            <Button variant="ghost" size="sm" onClick={this.handleCancel}>
+              Cancel
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    );
+  }
+}
+
+// Create a forwardRef wrapper to maintain the ref functionality
+const MultipleValueSelect = React.forwardRef<IMultipleValueSelectRef, IMultipleValueSelectProps>((props, ref) => {
+  const componentRef = React.useRef<IMultipleValueSelect>(null);
+
+  React.useImperativeHandle(ref, () => ({
+    handleKeyDown: (keyCode: string | number) => {
+      return componentRef.current?.handleKeyDown(keyCode);
+    }
   }));
 
-  // 过滤并渲染列表项
-  const filteredItems = values
-    .map((item, index) => ({ ...item, index }))
-    .filter(({ name }) => searchFilter(name, searchValue))
-    .map(({ index, ...item }) => (
-      <div
-        key={index}
-        className={cn(
-          "flex items-center p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors",
-          curIndex === index + 1 ? "bg-slate-100" : ""
-        )}
-        onClick={(e) => handleClick(e, index)}
-      >
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            checked={select.indexOf(index) >= 0}
-            id={`item-${index}`}
-            className="data-[state=checked]:bg-blue-500"
-          />
-          <label
-            htmlFor={`item-${index}`}
-            className="text-sm cursor-pointer"
-            style={item.style || {}}
-            title={item.name}
-          >
-            {itemRender(item.name, item)}
-          </label>
-        </div>
-      </div>
-    ));
-
-  return (
-    <Card
-      className="w-auto border-none shadow-none"
-      style={{
-        maxWidth: maxWidth || 300,
-      }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {searchable && (
-        <div className="p-2 border-b">
-          <Input
-            placeholder="搜索..."
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            className="h-8"
-          />
-        </div>
-      )}
-
-      <CardContent className="p-0">
-        <ScrollArea
-          className="h-full max-h-[300px]"
-          style={{ maxHeight: maxHeight - 50 }}
-        >
-          <div className="p-1">
-            {all && !searchValue && (
-              <div
-                className={cn(
-                  "flex items-center p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors",
-                  curIndex === 0 ? "bg-slate-100" : ""
-                )}
-                onClick={handleSelectAll}
-              >
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={select.length === values.length}
-                    id="select-all"
-                    className="data-[state=checked]:bg-blue-500"
-                  />
-                  <label
-                    htmlFor="select-all"
-                    className="text-sm font-medium cursor-pointer"
-                  >
-                    Select All
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {filteredItems.length === 0 ? (
-              <div className="flex items-center justify-center p-4 text-sm text-slate-500">
-                没有匹配的结果
-              </div>
-            ) : (
-              filteredItems
-            )}
-          </div>
-        </ScrollArea>
-      </CardContent>
-
-      <CardFooter className="flex justify-end p-2 pt-2 border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <Button
-            size="sm"
-            onClick={handleSubmit}
-            disabled={select.length === 0}
-            variant="default"
-          >
-            OK
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleCancel}>
-            Cancel
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
-  );
+  return <IMultipleValueSelect {...props} ref={componentRef} />;
 });
 
 export { MultipleValueSelect };

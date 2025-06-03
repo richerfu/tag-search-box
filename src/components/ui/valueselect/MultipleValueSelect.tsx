@@ -61,10 +61,13 @@ interface IMultipleValueSelectState {
   lastInputValue: string;
 }
 
-class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipleValueSelectState> {
+class IMultipleValueSelect extends Component<
+  IMultipleValueSelectProps,
+  IMultipleValueSelectState
+> {
   constructor(props: IMultipleValueSelectProps) {
     super(props);
-    
+
     // Initialize selection
     const list = props.inputValue.split("|").map((i) => i.trim());
     const select: number[] = [];
@@ -84,20 +87,23 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
       curIndex: 0,
       select,
       searchValue: "",
-      lastInputValue: props.inputValue
+      lastInputValue: props.inputValue,
     };
   }
 
   componentDidMount() {
     const { select } = this.state;
     const { onSelect } = this.props;
-    
+
     if (select.length <= 0 && onSelect) {
       onSelect(this.getValue(select));
     }
   }
 
-  static getDerivedStateFromProps(props: IMultipleValueSelectProps, state: IMultipleValueSelectState) {
+  static getDerivedStateFromProps(
+    props: IMultipleValueSelectProps,
+    state: IMultipleValueSelectState
+  ) {
     if (state.lastInputValue !== props.inputValue) {
       const list = props.inputValue.split("|").map((i) => i.trim());
       const select: number[] = [];
@@ -167,8 +173,9 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
     const { values } = this.props;
     if (values.length <= 0) return;
 
-    this.setState(prevState => ({
-      curIndex: (prevState.curIndex + step + (values.length + 1)) % (values.length + 1)
+    this.setState((prevState) => ({
+      curIndex:
+        (prevState.curIndex + step + (values.length + 1)) % (values.length + 1),
     }));
   };
 
@@ -234,7 +241,7 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
       maxHeight = 350,
       searchable = false,
       maxWidth,
-      itemRender = (x) => x
+      itemRender = (x) => x,
     } = this.props;
 
     const filteredItems = values
@@ -249,7 +256,7 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
           )}
           onClick={(e) => this.handleClick(e, index)}
         >
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Checkbox
               checked={select.indexOf(index) >= 0}
               id={`item-${index}`}
@@ -300,7 +307,7 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
                   )}
                   onClick={this.handleSelectAll}
                 >
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       checked={select.length === values.length}
                       id="select-all"
@@ -348,13 +355,16 @@ class IMultipleValueSelect extends Component<IMultipleValueSelectProps, IMultipl
 }
 
 // Create a forwardRef wrapper to maintain the ref functionality
-const MultipleValueSelect = React.forwardRef<IMultipleValueSelectRef, IMultipleValueSelectProps>((props, ref) => {
+const MultipleValueSelect = React.forwardRef<
+  IMultipleValueSelectRef,
+  IMultipleValueSelectProps
+>((props, ref) => {
   const componentRef = React.useRef<IMultipleValueSelect>(null);
 
   React.useImperativeHandle(ref, () => ({
     handleKeyDown: (keyCode: string | number) => {
       return componentRef.current?.handleKeyDown(keyCode);
-    }
+    },
   }));
 
   return <IMultipleValueSelect {...props} ref={componentRef} />;

@@ -207,7 +207,8 @@ export class Tag
             "text-sm transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             "cursor-text",
-            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
+            "space-x-2"
           )}
           style={{
             display: inEditing ? "none" : undefined,

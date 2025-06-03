@@ -124,7 +124,6 @@ interface TagSearchBoxProps {
 
 interface TagSearchBoxState {
   active: boolean;
-  dialogActive: boolean;
   curPos: number;
   curPosType: FocusPosType;
   showSelect: boolean;
@@ -140,14 +139,12 @@ class ITagSearchBox extends Component<
 > {
   static displayName = "TagSearchBox";
 
-  private searchWrapRef: RefObject<HTMLDivElement>;
-  private searchBoxRef: RefObject<HTMLDivElement>;
-  private tagRefs: { [key: string]: any };
+  private searchWrapRef = createRef<HTMLDivElement>();
+  private searchBoxRef = createRef<HTMLDivElement>();
+  private tagRefs: { [key: string]: any } = {};
 
   constructor(props: TagSearchBoxProps) {
     super(props);
-    this.searchWrapRef = createRef();
-    this.searchBoxRef = createRef();
     this.tagRefs = {};
 
     const { defaultValue = [], value } = props;
@@ -160,7 +157,6 @@ class ITagSearchBox extends Component<
 
     this.state = {
       active: false,
-      dialogActive: false,
       curPos: 0,
       curPosType: FocusPosType.INPUT,
       showSelect: true,
@@ -189,11 +185,6 @@ class ITagSearchBox extends Component<
     }
   }
 
-  // 更新状态
-  private updateState = (updates: Partial<TagSearchBoxState>) => {
-    this.setState(updates as TagSearchBoxState);
-  };
-
   // 重置标签状态
   private resetTagsState = (
     props: TagSearchBoxProps,
@@ -219,22 +210,19 @@ class ITagSearchBox extends Component<
   // 打开搜索框
   open = () => {
     const { disabled } = this.props;
-    const { active, tags } = this.state;
+    const { active, tags = [] } = this.state;
 
     if (disabled) {
       return;
     }
 
     if (!active) {
-      this.updateState({
-        active: true,
-        curPosType: FocusPosType.INPUT,
-        curPos: tags.length,
-        showSelect: true,
-      });
+      this.setState({ active: true });
+      this.setState({ curPosType: FocusPosType.INPUT, curPos: tags.length });
     } else {
       this.handleTagEvent("click-input", tags.length);
     }
+    this.setState({ showSelect: true });
 
     setTimeout(() => {
       this.tagRefs[`tag-${tags.length}`]?.moveToEnd();
@@ -258,17 +246,19 @@ class ITagSearchBox extends Component<
     this.setTags(
       updatedTags,
       () => {
-        this.updateState({ showSelect: false });
+        this.setState({ showSelect: false });
 
         if (active) {
-          this.updateState({
-            curPos: -1,
-            active: false,
-          });
-
-          if (this.searchBoxRef.current) {
-            this.searchBoxRef.current.scrollLeft = 0;
-          }
+          this.setState(
+            {
+              curPos: -1,
+            },
+            () => {
+              if (this.searchBoxRef.current) {
+                this.searchBoxRef.current.scrollLeft = 0;
+              }
+            }
+          );
         }
       },
       false
@@ -355,7 +345,7 @@ class ITagSearchBox extends Component<
       }, 0);
     });
 
-    this.updateState({
+    this.setState({
       curPos: 0,
       curPosType: FocusPosType.INPUT,
     });
@@ -375,8 +365,6 @@ class ITagSearchBox extends Component<
     if (onHelpButtonClick(e) === false) {
       return;
     }
-
-    this.updateState({ dialogActive: true });
   };
 
   // 处理搜索按钮点击
@@ -442,7 +430,7 @@ class ITagSearchBox extends Component<
         this.setTags(newTags, () => {
           this.tagRefs[`tag-${index}`]?.focusInput();
         });
-        this.updateState({ showSelect: false });
+        this.setState({ showSelect: false });
         break;
 
       case "edit":
@@ -453,7 +441,7 @@ class ITagSearchBox extends Component<
         newTags[index]["_edit"] = false;
         this.setTags(newTags);
         index++;
-        this.updateState({
+        this.setState({
           showSelect: false,
           curPosType: FocusPosType.INPUT,
         });
@@ -462,7 +450,7 @@ class ITagSearchBox extends Component<
       case "edit-cancel":
         this.tagRefs[`tag-${index}`]?.editDone();
         this.setTags(newTags, () => null, false);
-        this.updateState({
+        this.setState({
           showSelect: false,
           curPosType: FocusPosType.INPUT,
         });
@@ -491,11 +479,11 @@ class ITagSearchBox extends Component<
 
         newTags.splice(index, 1);
         this.setTags(newTags, () => {
-          this.updateState({ curPosType: FocusPosType.INPUT });
+          this.setState({ curPosType: FocusPosType.INPUT });
         });
 
         if (payload !== "edit") {
-          this.updateState({ showSelect: false });
+          this.setState({ showSelect: false });
         }
         break;
 
@@ -511,38 +499,31 @@ class ITagSearchBox extends Component<
         this.setTags(
           newTags,
           () => {
-            this.updateState({ showSelect: true });
-            setTimeout(() => {
+            this.setState({ showSelect: true }, () => {
               this.tagRefs[`tag-${index}`]?.edit(pos);
-            }, 0);
+            });
           },
           false
         );
-
-        this.updateState({ curPosType: FocusPosType.INPUT_EDIT });
+        this.setState({ curPosType: FocusPosType.INPUT_EDIT });
         break;
 
       case "click-input":
         if (payload === "edit") {
-          this.updateState({ curPosType: FocusPosType.INPUT_EDIT });
+          this.setState({ curPosType: FocusPosType.INPUT_EDIT });
         } else {
-          this.updateState({ curPosType: FocusPosType.INPUT });
+          this.setState({ curPosType: FocusPosType.INPUT });
         }
 
         if (!this.state.active) {
-          this.updateState({ active: true });
+          this.setState({ active: true });
         }
 
-        this.updateState({ showSelect: true });
+        this.setState({ showSelect: true });
         break;
     }
 
-    this.updateState({ curPos: index });
-  };
-
-  // 关闭对话框
-  private handleCloseDialog = () => {
-    this.updateState({ dialogActive: false });
+    this.setState({ curPos: index });
   };
 
   render() {
@@ -556,8 +537,7 @@ class ITagSearchBox extends Component<
       forwardRef,
     } = this.props;
 
-    const { active, dialogActive, curPos, curPosType, showSelect, tags } =
-      this.state;
+    const { active, curPos, curPosType, showSelect, tags } = this.state;
 
     // 用于计算 focused 及 isFocused, 判断是否显示选择组件
     let focusedInputIndex = -1;
@@ -672,7 +652,10 @@ class ITagSearchBox extends Component<
           ref={mergeRefs(this.searchWrapRef, forwardRef)}
         >
           <div
-            className={cn("flex flex-1 flex-wrap gap-x-1.5 gap-y-1", "items-center")}
+            className={cn(
+              "flex flex-1 flex-wrap gap-x-1.5 gap-y-1",
+              "items-center"
+            )}
             ref={mergeRefs(this.searchBoxRef)}
             onClick={this.open}
           >
@@ -766,7 +749,7 @@ class ITagSearchBox extends Component<
           </div>
         </div>
 
-        <Dialog open={dialogActive} onOpenChange={this.handleCloseDialog}>
+        <Dialog>
           <DialogContent className="max-w-[600px]">
             <DialogHeader>
               <DialogTitle className="text-base">Help</DialogTitle>

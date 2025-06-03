@@ -77,10 +77,13 @@ const keys: Record<string, string> = {
   "40": "down",
 };
 
-export class Tag extends Component<TagProps, { inEditing: boolean }> implements TagRef {
-  private inputInsideRef = createRef<any>();
-  private inputRef = createRef<any>();
+export class Tag
+  extends Component<TagProps, { inEditing: boolean }>
+  implements TagRef
+{
   private contentRef = createRef<HTMLDivElement>();
+  private inputInsideRef: any = null;
+  private inputRef: any = null;
 
   constructor(props: TagProps) {
     super(props);
@@ -90,9 +93,8 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
   }
 
   handleTagClick = (e: React.MouseEvent, pos?: string) => {
-    console.log("handleTagClick", pos);
-    this.props.dispatchTagEvent?.("click", pos);
     e.stopPropagation();
+    this.props.dispatchTagEvent?.("click", pos);
   };
 
   handleDelete = (e: React.MouseEvent) => {
@@ -101,10 +103,10 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
   };
 
   handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!keys[e.keyCode.toString()]) return;
+    if (!keys[e.keyCode]) return;
 
     e.preventDefault();
-    switch (keys[e.keyCode.toString()]) {
+    switch (keys[e.keyCode]) {
       case "tab":
       case "enter":
         this.props.dispatchTagEvent?.("click", "value");
@@ -116,50 +118,52 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
   };
 
   focusTag = () => {
-    this.inputInsideRef.current?.focusInput();
+    this.inputInsideRef?.focusInput();
   };
 
   focusInput = () => {
-    this.inputRef.current?.focusInput();
+    this.inputRef?.focusInput();
   };
 
   resetInput = () => {
-    this.inputInsideRef.current?.resetInput();
+    this.inputInsideRef?.resetInput();
   };
 
   setInputValue = (value: string, callback?: () => void) => {
-    this.inputRef.current?.setInputValue(value, callback);
+    this.inputRef?.setInputValue(value, callback);
   };
 
   getInputValue = () => {
-    return this.inputRef.current?.getInputValue();
+    return this.inputRef?.getInputValue();
   };
 
   addTagByInputValue = () => {
-    return this.inputRef.current?.addTagByInputValue();
+    return this.inputRef?.addTagByInputValue();
   };
 
   addTagByEditInputValue = () => {
-    if (!this.inputInsideRef.current) return;
-    return this.inputInsideRef.current?.addTagByInputValue();
+    if (!this.inputInsideRef) return;
+    return this.inputInsideRef?.addTagByInputValue();
   };
 
   setInfo = (info: any, callback?: () => void) => {
-    return this.inputRef.current?.setInfo(info, callback);
+    return this.inputRef?.setInfo(info, callback);
   };
 
   moveToEnd = () => {
-    return this.inputRef.current?.moveToEnd();
+    return this.inputRef?.moveToEnd();
   };
 
   getInfo = () => {
     const { attr, values } = this.props;
-    return { attr, values };
+    const info = { attr, values };
+    console.log("info", info);
+    return info;
   };
 
   edit = (pos: string) => {
     this.setState({ inEditing: true });
-    const input = this.inputInsideRef.current;
+    const input = this.inputInsideRef;
     input?.setInfo(this.getInfo(), () => {
       if (pos === "attr") {
         return input.selectAttr();
@@ -173,7 +177,15 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
   };
 
   render() {
-    const { attr, values, dispatchTagEvent, attributes, focused, maxWidth, active } = this.props;
+    const {
+      attr,
+      values,
+      dispatchTagEvent,
+      attributes,
+      focused,
+      maxWidth,
+      active,
+    } = this.props;
     const { inEditing } = this.state;
 
     const formattedAttrStr = attr && attr.name ? `${attr.name}: ` : "";
@@ -187,6 +199,8 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
           "rounded-md border border-input bg-background px-2 py-1",
           "text-sm transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
+          "cursor-text",
+          "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
         )}
         onClick={(e) => this.handleTagClick(e)}
         onKeyDown={this.handleKeyDown}
@@ -201,14 +215,20 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
           {attr && (
             <span
               className="text-muted-foreground/80 text-xs"
-              onClick={(e) => this.handleTagClick(e, "attr")}
+              onClick={(e) => {
+                e.stopPropagation();
+                this.handleTagClick(e, "attr");
+              }}
             >
               {formattedAttrStr}
             </span>
           )}
           <span
             className="font-medium text-xs"
-            onClick={(e) => this.handleTagClick(e, "value")}
+            onClick={(e) => {
+              e.stopPropagation();
+              this.handleTagClick(e, "value");
+            }}
           >
             {valueStr}
           </span>
@@ -241,26 +261,15 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
           </TooltipProvider>
         )}
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className={cn(
-                  "absolute inset-0 cursor-text",
-                  "rounded-md",
-                  "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
-                )}
-                role="button"
-                tabIndex={-1}
-              />
-            </TooltipTrigger>
-            {active && (
+        {active && (
+          <TooltipProvider>
+            <Tooltip>
               <TooltipContent side="bottom" className="text-xs">
                 <p>Click to modify. Press Enter to finish.</p>
               </TooltipContent>
-            )}
-          </Tooltip>
-        </TooltipProvider>
+            </Tooltip>
+          </TooltipProvider>
+        )}
 
         <TagInput
           type="edit"
@@ -268,7 +277,7 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
           maxWidth={maxWidth!}
           handleKeyDown={this.handleKeyDown}
           active={active}
-          ref={this.inputInsideRef}
+          ref={(input) => (this.inputInsideRef = input)}
           attributes={attributes}
           dispatchTagEvent={dispatchTagEvent!}
           isFocused={focused === FocusPosType.INPUT_EDIT}

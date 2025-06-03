@@ -229,37 +229,29 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       value = attribute.name + ":" + valueStr;
     }
 
-    if (attribute !== this.state.attribute && attribute) {
+    if (attribute !== this.state.attribute) {
       this.setState({
         values: valueStr.split("|").map((item) => ({ name: item.trim() })),
       });
     }
+    this.setState({ attribute }, this.refreshShow);
 
     if (this.props.type === "edit") {
-      this.props.dispatchTagEvent("editing", { attr: attribute ?? undefined });
+      this.props.dispatchTagEvent("editing", { attr: attribute });
     }
 
+    mirror!.innerText = value;
+    const width = Math.max(mirror!.clientWidth, INPUT_MIN_SIZE);
     this.setState(
       {
-        attribute,
+        inputValue: value,
+        fullInputValue: value,
+        inputWidth: width,
       },
-      this.refreshShow
+      () => {
+        callback && callback();
+      }
     );
-
-    if (mirror) {
-      mirror.innerText = value;
-      const width = Math.max(mirror.clientWidth, INPUT_MIN_SIZE);
-      this.setState(
-        {
-          inputValue: value,
-          fullInputValue: value,
-          inputWidth: width,
-        },
-        () => callback && callback()
-      );
-    } else if (callback) {
-      setTimeout(callback, 0);
-    }
   };
 
   // Set full input value (including IME process)
@@ -531,23 +523,17 @@ class TagInput extends Component<TagInputProps, TagInputState> {
 
   public setInfo = (info: any, callback?: () => void) => {
     const attribute = info.attr;
-    const values = info.values;
+    const values = info.values || [];
 
-    this.setState({ attribute, values });
-
-    if (attribute) {
-      this.setInputValue(
-        attribute.name +
-          ": " +
-          values.map((item: any) => item.name).join(" | "),
-        callback
-      );
-    } else {
-      this.setInputValue(
-        "" + values.map((item: any) => item.name).join(" | "),
-        callback
-      );
-    }
+    this.setState({ attribute, values }, () => {
+      if (attribute) {
+        const valueStr = values.map((item: any) => item.name).join(" | ");
+        this.setInputValue(attribute.name + ": " + valueStr, callback);
+      } else {
+        const valueStr = values.map((item: any) => item.name).join(" | ");
+        this.setInputValue(valueStr, callback);
+      }
+    });
   };
 
   private handleOpenChange = (open: boolean) => {
@@ -641,6 +627,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     "flex items-center",
                     "resize-none"
                   )}
+                  type="text"
                   style={{
                     width: hidden ? 0 : inputWidth + 6,
                     display: active ? "" : "none",
@@ -665,25 +652,27 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     "caret-foreground",
                     "shadow-none",
                     "flex items-center",
-                    "resize-none",
-                    ""
+                    "resize-none"
                   )}
                   style={{
-                    position: "absolute",
-                    width: hidden ? 0 : inputWidth + 30,
+                    width: hidden ? 0 : inputWidth + 6,
                     display: active ? "" : "none",
                     maxWidth: maxWidth ? maxWidth - 36 : 435,
-                    top: 0,
+                    position: "relative",
                     left: 0,
-                    resize: "none",
+                    top: 0,
                   }}
                 />
               )}
               <span
                 ref={this.inputMirrorRef}
-                className="invisible absolute left-0 top-0 whitespace-pre text-sm"
+                className="invisible absolute whitespace-pre text-sm"
                 style={{
-                  top: -9999
+                  position: "absolute",
+                  visibility: "hidden",
+                  whiteSpace: "pre",
+                  pointerEvents: "none",
+                  zIndex: -1,
                 }}
               >
                 {fullInputValue}
@@ -720,7 +709,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                       onSelect={() => this.handleAttrSelect(attr)}
                       className={cn(
                         "flex cursor-pointer items-center rounded-sm px-2 py-1.5 text-sm outline-none",
-                        "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                        "aria-selected:bg-accent aria-selected:text-accent-foreground"
                       )}
                     >
                       {attr.name}

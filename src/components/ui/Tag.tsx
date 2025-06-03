@@ -194,24 +194,25 @@ export class Tag
 
     return (
       <div
-        className={cn(
-          "group relative inline-flex items-center gap-1",
-          "rounded-md border border-input bg-background px-2 py-1",
-          "text-sm transition-colors",
-          "hover:bg-accent hover:text-accent-foreground",
-          "cursor-text",
-          "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
-        )}
         onClick={(e) => this.handleTagClick(e)}
         onKeyDown={this.handleKeyDown}
         tabIndex={0}
         role="button"
-        style={{
-          display: inEditing ? "none" : undefined,
-        }}
         ref={this.contentRef}
       >
-        <div className="flex items-center gap-1">
+        <div
+          className={cn(
+            "group relative inline-flex items-center gap-1",
+            "rounded-md border border-input bg-background px-2 py-1",
+            "text-sm transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            "cursor-text",
+            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
+          )}
+          style={{
+            display: inEditing ? "none" : undefined,
+          }}
+        >
           {attr && (
             <span
               className="text-muted-foreground/80 text-xs"
@@ -232,34 +233,33 @@ export class Tag
           >
             {valueStr}
           </span>
+          {removeable && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    className={cn(
+                      "ml-1 rounded-sm opacity-70 ring-offset-background",
+                      "transition-opacity hover:opacity-100",
+                      "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
+                      "disabled:pointer-events-none disabled:opacity-50"
+                    )}
+                    onClick={this.handleDelete}
+                    disabled={!active}
+                  >
+                    <X className="h-3 w-3" />
+                    <span className="sr-only">Remove tag</span>
+                  </button>
+                </TooltipTrigger>
+                {active && (
+                  <TooltipContent side="bottom" className="text-xs">
+                    <p>Click to remove tag</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
-
-        {removeable && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  className={cn(
-                    "ml-1 rounded-sm opacity-70 ring-offset-background",
-                    "transition-opacity hover:opacity-100",
-                    "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
-                    "disabled:pointer-events-none disabled:opacity-50"
-                  )}
-                  onClick={this.handleDelete}
-                  disabled={!active}
-                >
-                  <X className="h-3 w-3" />
-                  <span className="sr-only">Remove tag</span>
-                </button>
-              </TooltipTrigger>
-              {active && (
-                <TooltipContent side="bottom" className="text-xs">
-                  <p>Click to remove tag</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        )}
 
         {active && (
           <TooltipProvider>

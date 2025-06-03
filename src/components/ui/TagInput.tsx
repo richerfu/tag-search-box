@@ -629,33 +629,47 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   data-type="tag-input"
                 />
               ) : (
-                <Input
-                  ref={this.inputRef}
-                  value={inputValue}
-                  onChange={this.handleInputChange}
-                  onKeyDown={this.handleKeyDown}
-                  onClick={this.refreshShow}
-                  onPaste={this.handlePaste}
-                  onFocus={this.refreshShow}
-                  className={cn(
-                    "w-full border-none p-0 text-sm",
-                    "bg-transparent",
-                    "focus:outline-none focus:ring-0 focus-visible:ring-0",
-                    "placeholder:text-muted-foreground/70",
-                    "caret-foreground",
-                    "shadow-none",
-                    "flex items-center",
-                    "resize-none"
-                  )}
-                  style={{
-                    width: hidden ? 0 : inputWidth + 30,
-                    display: active ? "" : "none",
-                    maxWidth: maxWidth ? maxWidth - 36 : 435,
-                    position: "relative",
-                    left: 0,
-                    top: 0,
-                  }}
-                />
+                <React.Fragment>
+                  <pre style={{ display: "block", visibility: "hidden" }}>
+                    <div className="text-sm" style={{
+                      width: hidden ? 0 : inputWidth + 36,
+                      maxWidth: maxWidth ? maxWidth - 36 : 435,
+                      whiteSpace: "normal",
+                    }}>
+                      {fullInputValue}
+                    </div>
+                    <br style={{ clear: "both" }} />
+                  </pre>
+                  <Input
+                    ref={this.inputRef}
+                    value={inputValue}
+                    onChange={this.handleInputChange}
+                    onKeyDown={this.handleKeyDown}
+                    onClick={this.refreshShow}
+                    onPaste={this.handlePaste}
+                    onFocus={this.refreshShow}
+                    className={cn(
+                      "w-full border-none p-0 text-sm",
+                      "bg-transparent",
+                      "focus:outline-none focus:ring-0 focus-visible:ring-0",
+                      "placeholder:text-muted-foreground/70",
+                      "caret-foreground",
+                      "shadow-none",
+                      "resize-none"
+                    )}
+                    style={{
+                      width: hidden ? 0 : inputWidth + 30,
+                      display: active ? "" : "none",
+                      maxWidth: maxWidth ? maxWidth - 36 : 435,
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      height: "100%",
+                      resize: "none",
+                      minHeight: 20,
+                    }}
+                  />
+                </React.Fragment>
               )}
               <span
                 ref={this.inputMirrorRef}

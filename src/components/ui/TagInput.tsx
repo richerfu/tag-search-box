@@ -648,7 +648,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     "resize-none"
                   )}
                   style={{
-                    width: hidden ? 0 : inputWidth + 6,
+                    width: hidden ? 0 : inputWidth + 30,
                     display: active ? "" : "none",
                     maxWidth: maxWidth ? maxWidth - 36 : 435,
                     position: "relative",
@@ -661,9 +661,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                 ref={this.inputMirrorRef}
                 className="invisible absolute whitespace-pre text-sm"
                 style={{
-                  position: "absolute",
-                  visibility: "hidden",
-                  whiteSpace: "pre",
                   pointerEvents: "none",
                   zIndex: -1,
                 }}
@@ -700,7 +697,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                 type={attribute.type}
                 values={attribute.values ?? []}
                 render={attribute.render}
-                inputValue={valueStr}
+                inputValue={valueStr.trim()}
                 offset={this.state.valueSelectOffset}
                 onChange={this.handleValueChange}
                 onSelect={this.handleValueSelect}

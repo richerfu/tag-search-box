@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { PureInput } from "./PureInput";
-import { SingleValueSelect } from "./SingleValueSelect";
-import { MultipleValueSelect } from "./MultipleValueSelect";
-import { AttributeValue } from "../AttributeSelect";
-import { Value } from "../AttributeSelect";
-import { DropdownMenu } from "../dropdown";
-import { Loading } from "./Loading";
-import { Empty } from "./Empty";
+import { PureInput } from "@/registry/new-york/tag-search-box/valueselect/PureInput";
+import { SingleValueSelect } from "@/registry/new-york/tag-search-box/valueselect/SingleValueSelect";
+import { MultipleValueSelect } from "@/registry/new-york/tag-search-box/valueselect/MultipleValueSelect";
+import { AttributeValue } from "@/registry/new-york/tag-search-box/AttributeSelect";
+import { Value } from "@/registry/new-york/tag-search-box/AttributeSelect";
+import { DropdownMenu } from "@/components/ui/dropdown";
+import { Loading } from "@/registry/new-york/tag-search-box/valueselect/Loading";
+import { Empty } from "@/registry/new-york/tag-search-box/valueselect/Empty";
 
 interface ValueSelectProps {
   /**
@@ -49,7 +49,7 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
   constructor(props: ValueSelectProps) {
     super(props);
     this.state = {
-      values: Array.isArray(props.values) ? props.values : []
+      values: Array.isArray(props.values) ? props.values : [],
     };
   }
 
@@ -103,7 +103,7 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
       onCancel,
       offset = 0,
       maxHeight,
-      render
+      render,
     } = this.props;
 
     // 如果提供了自定义渲染函数
@@ -152,13 +152,10 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
           onSelect: onSelect || (() => {}),
           onCancel: onCancel || (() => {}),
           offset,
-          maxHeight
+          maxHeight,
         };
         return (
-          <PureInput
-            ref={(select) => (this.select = select)}
-            {...inputProps}
-          />
+          <PureInput ref={(select) => (this.select = select)} {...inputProps} />
         );
 
       case "single":
@@ -210,19 +207,24 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
 }
 
 // Create a forwardRef wrapper to maintain the ref functionality
-const ValueSelect = React.forwardRef<ValueSelectRef, ValueSelectProps>((props, ref) => {
-  const componentRef = React.useRef<IValueSelect>(null);
+const ValueSelect = React.forwardRef<ValueSelectRef, ValueSelectProps>(
+  (props, ref) => {
+    const componentRef = React.useRef<IValueSelect>(null);
 
-  React.useImperativeHandle(ref, () => ({
-    handleKeyDown: (keyCode: string | number) => {
-      return componentRef.current?.handleKeyDown(keyCode);
-    },
-    handleKeyDownForRenderMode: (operationalKey: string) => {
-      return componentRef.current?.handleKeyDownForRenderMode(operationalKey) ?? true;
-    }
-  }));
+    React.useImperativeHandle(ref, () => ({
+      handleKeyDown: (keyCode: string | number) => {
+        return componentRef.current?.handleKeyDown(keyCode);
+      },
+      handleKeyDownForRenderMode: (operationalKey: string) => {
+        return (
+          componentRef.current?.handleKeyDownForRenderMode(operationalKey) ??
+          true
+        );
+      },
+    }));
 
-  return <IValueSelect {...props} ref={componentRef} />;
-});
+    return <IValueSelect {...props} ref={componentRef} />;
+  }
+);
 
 export { ValueSelect };

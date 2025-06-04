@@ -1,6 +1,6 @@
 import React, { Component, createRef } from "react";
-import { TagInput } from "./TagInput";
-import { FocusPosType } from "./TagSearchBox";
+import { TagInput } from "@/registry/new-york/tag-search-box/TagInput";
+import { FocusPosType } from "@/registry/new-york/tag-search-box/TagSearchBox";
 import { X } from "lucide-react";
 import {
   Tooltip,
@@ -9,7 +9,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Value, AttributeValue } from "./AttributeSelect";
+import {
+  Value,
+  AttributeValue,
+} from "@/registry/new-york/tag-search-box/AttributeSelect";
 
 export interface TagValue {
   /**
@@ -206,7 +209,7 @@ export class Tag
             "text-sm transition-colors",
             "hover:bg-accent hover:text-accent-foreground",
             "cursor-text",
-            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
+            "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1"
           )}
           style={{
             display: inEditing ? "none" : undefined,

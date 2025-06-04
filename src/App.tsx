@@ -1,5 +1,8 @@
-import { TagSearchBox, AttributeValue } from "./components/ui/TagSearchBox"
-import { Button } from "./components/ui/button"
+import {
+  TagSearchBox,
+  AttributeValue,
+} from "@/registry/new-york/tag-search-box/TagSearchBox";
+import { Button } from "@/components/ui/button";
 import { TagSearchBox as TeaTagSearchBox } from "tea-component";
 import "tea-component/dist/tea.css";
 
@@ -16,12 +19,12 @@ const attributes: AttributeValue[] = [
     ],
   },
   {
-    type: 'input',
+    type: "input",
     key: "type",
     name: "类型",
   },
   {
-    type: 'multiple',
+    type: "multiple",
     key: "region",
     name: "地域",
     values: [
@@ -31,7 +34,7 @@ const attributes: AttributeValue[] = [
       },
     ],
   },
-]
+];
 
 export default function App() {
   return (
@@ -41,7 +44,9 @@ export default function App() {
         <TagSearchBox
           attributes={attributes}
           onChange={(tags) => console.log("Tags changed:", tags)}
-          onSearchButtonClick={(e, tags) => console.log("Search clicked:", tags)}
+          onSearchButtonClick={(e, tags) =>
+            console.log("Search clicked:", tags)
+          }
         />
       </div>
 
@@ -49,11 +54,13 @@ export default function App() {
         <TeaTagSearchBox
           attributes={attributes}
           onChange={(tags) => console.log("Tags changed:", tags)}
-          onSearchButtonClick={(e, tags) => console.log("Search clicked:", tags)}
+          onSearchButtonClick={(e, tags) =>
+            console.log("Search clicked:", tags)
+          }
         />
       </div>
 
       <Button>hello</Button>
     </main>
-  )
-} 
+  );
+}

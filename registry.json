@@ -1,0 +1,81 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "TagSearchBox",
+  "homepage": "https://acme.com",
+  "items": [
+    {
+      "name": "TagSearchBox",
+      "type": "registry:component",
+      "dependencies": [
+        "clone",
+        "react-onclickoutside"
+      ],
+      "registryDependencies": [
+        "button",
+        "card",
+        "input",
+        "label",
+        "popover",
+        "scrollarea",
+        "tooltip",
+        "command",
+        "dropdown",
+        "checkbox"
+      ],
+      "files": [
+        {
+          "path": "src/registry/new-york/tag-search-box/TagSearchBox.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/TagInput.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/Tag.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/AttributeSelect.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/TagSearchboxContext.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/ValueSelect.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/PureInput.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/SingleValueSelect.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/MultipleValueSelect.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/Loading.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/valueselect/Empty.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/hooks/withOutsideClick.tsx",
+          "type": "registry:hook"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/lib/index.ts",
+          "type": "registry:lib"
+        }
+      ]
+    }
+  ]
+}

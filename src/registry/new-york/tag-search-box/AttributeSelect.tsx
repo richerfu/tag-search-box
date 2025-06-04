@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { DropdownMenu } from "@/components/ui/dropdown";
 import { CommandItem, Command, CommandGroup } from "@/components/ui/command";
-import { TagSearchBoxContext } from "./TagSearchboxContext";
+import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
 import { cn } from "@/lib/utils";
 
 export interface Value {

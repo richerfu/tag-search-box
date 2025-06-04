@@ -1,5 +1,12 @@
 import { MutableRefObject, LegacyRef } from 'react';
 
+export function searchFilter(optionValue: string, inputValue: string) {
+  return String(optionValue)
+    .trim()
+    .toLowerCase()
+    .includes(String(inputValue).trim().toLowerCase());
+}
+
 /**
  * 合并多个 refs 到一个回调函数中
  * @param refs 要合并的 refs 数组

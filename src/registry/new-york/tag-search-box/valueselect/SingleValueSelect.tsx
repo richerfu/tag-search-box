@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { searchFilter } from "../util";
+import { searchFilter } from "@/registry/new-york/tag-search-box/lib";
 
 import {
   Card,
@@ -8,7 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scrollarea";
 import { cn } from "@/lib/utils";
-import { Value } from "../AttributeSelect";
+import { Value } from "@/registry/new-york/tag-search-box/AttributeSelect";
 
 const keys: Record<string, string> = {
   "8": "backspace",

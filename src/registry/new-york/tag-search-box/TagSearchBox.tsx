@@ -1,9 +1,10 @@
-import React, { Component, createRef, forwardRef, RefObject } from "react";
+import React, { Component, createRef, forwardRef } from "react";
 import clone from "clone";
-import { Tag, TagValue } from "./Tag";
-import { TagInput } from "./TagInput";
-import { withOutsideClick, mergeRefs } from "./util";
-import { TagSearchBoxContext } from "./TagSearchboxContext";
+import { Tag, TagValue } from "@/registry/new-york/tag-search-box/Tag";
+import { TagInput } from "@/registry/new-york/tag-search-box/TagInput";
+import { withOutsideClick } from "@/registry/new-york/tag-search-box/hooks/withOutsideClick";
+import { mergeRefs } from "@/registry/new-york/tag-search-box/lib";
+import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
 
 import {
   Dialog,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { X, Info, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AttributeValue } from "./AttributeSelect";
+import { AttributeValue } from "@/registry/new-york/tag-search-box/AttributeSelect";
 
 export type { AttributeValue };
 

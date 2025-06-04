@@ -1,7 +1,10 @@
 import React, { Component, createRef } from "react";
-import { AttributeSelect, AttributeValue } from "./AttributeSelect";
-import { ValueSelect } from "./valueselect/ValueSelect.tsx";
-import { TagSearchBoxContext } from "./TagSearchboxContext";
+import {
+  AttributeSelect,
+  AttributeValue,
+} from "@/registry/new-york/tag-search-box/AttributeSelect.tsx";
+import { ValueSelect } from "@/registry/new-york/tag-search-box/valueselect/ValueSelect.tsx";
+import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext.ts";
 import { cn } from "@/lib/utils";
 
 import {
@@ -334,7 +337,9 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   };
 
   // Event handlers
-  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  private handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     this.setInputValue(e.target.value);
   };
 
@@ -624,11 +629,14 @@ class TagInput extends Component<TagInputProps, TagInputState> {
               ) : (
                 <React.Fragment>
                   <pre style={{ display: "block", visibility: "hidden" }}>
-                    <div className="text-sm" style={{
-                      width: hidden ? 0 : inputWidth + 36,
-                      maxWidth: maxWidth ? maxWidth - 36 : 435,
-                      whiteSpace: "normal",
-                    }}>
+                    <div
+                      className="text-sm"
+                      style={{
+                        width: hidden ? 0 : inputWidth + 36,
+                        maxWidth: maxWidth ? maxWidth - 36 : 435,
+                        whiteSpace: "normal",
+                      }}
+                    >
                       {fullInputValue}
                     </div>
                   </pre>

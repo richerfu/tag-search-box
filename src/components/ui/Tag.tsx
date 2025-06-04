@@ -105,7 +105,6 @@ export class Tag
   handleKeyDown = (e: React.KeyboardEvent) => {
     if (!keys[e.keyCode]) return;
 
-    e.preventDefault();
     switch (keys[e.keyCode]) {
       case "tab":
       case "enter":
@@ -207,7 +206,6 @@ export class Tag
             "hover:bg-accent hover:text-accent-foreground",
             "cursor-text",
             "focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1",
-            "space-x-2"
           )}
           style={{
             display: inEditing ? "none" : undefined,

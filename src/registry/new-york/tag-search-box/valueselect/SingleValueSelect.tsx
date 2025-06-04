@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { searchFilter } from "@/registry/new-york/tag-search-box/lib";
+import { searchFilter } from "@/registry/new-york/tag-search-box/utils";
 
 import {
   Card,
   CardContent
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scrollarea";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Value } from "@/registry/new-york/tag-search-box/AttributeSelect";
 

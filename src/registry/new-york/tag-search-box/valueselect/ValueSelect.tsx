@@ -4,7 +4,7 @@ import { SingleValueSelect } from "@/registry/new-york/tag-search-box/valueselec
 import { MultipleValueSelect } from "@/registry/new-york/tag-search-box/valueselect/MultipleValueSelect";
 import { AttributeValue } from "@/registry/new-york/tag-search-box/AttributeSelect";
 import { Value } from "@/registry/new-york/tag-search-box/AttributeSelect";
-import { DropdownMenu } from "@/components/ui/dropdown";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { Loading } from "@/registry/new-york/tag-search-box/valueselect/Loading";
 import { Empty } from "@/registry/new-york/tag-search-box/valueselect/Empty";
 

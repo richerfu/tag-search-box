@@ -2,8 +2,8 @@ import React, { Component, createRef, forwardRef } from "react";
 import clone from "clone";
 import { Tag, TagValue } from "@/registry/new-york/tag-search-box/Tag";
 import { TagInput } from "@/registry/new-york/tag-search-box/TagInput";
-import { withOutsideClick } from "@/registry/new-york/tag-search-box/hooks/withOutsideClick";
-import { mergeRefs } from "@/registry/new-york/tag-search-box/lib";
+import { withOutsideClick } from "@/registry/new-york/tag-search-box/utils/withOutsideClick";
+import { mergeRefs } from "@/registry/new-york/tag-search-box/utils";
 import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
 
 import {

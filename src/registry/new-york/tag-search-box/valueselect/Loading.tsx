@@ -1,5 +1,5 @@
 import React from "react";
-import { DropdownMenu } from "@/components/ui/dropdown";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { CommandList, CommandItem } from "@/components/ui/command";
 
 interface LoadingProps {

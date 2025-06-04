@@ -8,4 +8,9 @@ export default defineConfig({
       index: './src/index.tsx',
     },
   },
+  output: {
+    distPath: {
+      root: 'public'
+    }
+  }
 });

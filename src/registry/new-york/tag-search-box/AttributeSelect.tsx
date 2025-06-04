@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { DropdownMenu } from "@/components/ui/dropdown";
+import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { CommandItem, Command, CommandGroup } from "@/components/ui/command";
 import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
 import { cn } from "@/lib/utils";

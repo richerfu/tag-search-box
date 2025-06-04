@@ -641,13 +641,14 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     onPaste={this.handlePaste}
                     onFocus={this.refreshShow}
                     className={cn(
-                      "w-full border-none p-0 text-sm min-h-auto h-9",
+                      "w-full border-none p-0 text-sm min-h-none",
                       "bg-transparent",
                       "focus:outline-none focus:ring-0 focus-visible:ring-0",
                       "placeholder:text-muted-foreground/70",
                       "caret-foreground",
                       "shadow-none",
-                      "resize-none"
+                      "resize-none",
+                      "h-9"
                     )}
                     style={{
                       width: hidden ? 0 : inputWidth + 30,
@@ -656,9 +657,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                       position: "absolute",
                       top: 0,
                       left: 0,
-                      height: "100%",
                       resize: "none",
-                      minHeight: 20,
+                      overflow: "hidden",
                     }}
                   />
                 </React.Fragment>

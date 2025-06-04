@@ -350,7 +350,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   };
 
   private handleAttrSelect = (attr: any) => {
-    console.log("handleAttrSelect", attr);
     if (attr && attr.key) {
       const str = attr.name + ": ";
       const { inputValue } = this.state;

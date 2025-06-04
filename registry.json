@@ -8,7 +8,6 @@
       "type": "registry:component",
       "dependencies": [
         "clone",
-        "react-onclickoutside",
         "lucide-react"
       ],
       "registryDependencies": [
@@ -86,11 +85,6 @@
           "path": "src/registry/new-york/tag-search-box/valueselect/Empty.tsx",
           "type": "registry:component",
           "target": "src/components/ui/tag-search-box/valueselect/Empty.tsx"
-        },
-        {
-          "path": "src/registry/new-york/tag-search-box/utils/withOutsideClick.tsx",
-          "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/utils/withOutsideClick.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/utils/SearchFilter.ts",

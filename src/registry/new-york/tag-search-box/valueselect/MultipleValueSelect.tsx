@@ -276,7 +276,7 @@ class IMultipleValueSelect extends Component<
 
     return (
       <Card
-        className="w-auto border-none shadow-none"
+        className="w-auto border-none shadow-none py-0 gap-0"
         style={{
           maxWidth: maxWidth || 300,
         }}
@@ -334,7 +334,7 @@ class IMultipleValueSelect extends Component<
           </ScrollArea>
         </CardContent>
 
-        <CardFooter className="flex justify-end p-2 pt-2 border-t border-gray-200">
+        <CardFooter className="flex justify-end p-2 [.border-t]:pt-2 border-t border-gray-200">
           <div className="flex items-center gap-2">
             <Button
               size="sm"

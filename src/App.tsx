@@ -3,8 +3,6 @@ import {
   AttributeValue,
 } from "@/registry/new-york/tag-search-box/TagSearchBox";
 import { Button } from "@/components/ui/button";
-import { TagSearchBox as TeaTagSearchBox } from "tea-component";
-import "tea-component/dist/tea.css";
 
 const attributes: AttributeValue[] = [
   {
@@ -50,15 +48,6 @@ export default function App() {
         />
       </div>
 
-      <div className="w-full max-w-3xl">
-        <TeaTagSearchBox
-          attributes={attributes}
-          onChange={(tags) => console.log("Tags changed:", tags)}
-          onSearchButtonClick={(e, tags) =>
-            console.log("Search clicked:", tags)
-          }
-        />
-      </div>
 
       <Button>hello</Button>
     </main>

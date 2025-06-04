@@ -41,7 +41,12 @@ interface ValueSelectState {
   values: any[];
 }
 
-class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
+export class ValueSelect extends Component<
+  ValueSelectProps & {
+    forwardRef?: React.Ref<ValueSelectRef>;
+  },
+  ValueSelectState
+> {
   private mount: boolean = false;
   private select: any = null;
   private operationalKeyDownListener: (key: string) => void = () => {};
@@ -155,7 +160,10 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
           maxHeight,
         };
         return (
-          <PureInput ref={(select) => (this.select = select)} {...inputProps} />
+          <PureInput
+            ref={(select) => (this.select = select) as any}
+            {...inputProps}
+          />
         );
 
       case "single":
@@ -205,26 +213,3 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
     }
   }
 }
-
-// Create a forwardRef wrapper to maintain the ref functionality
-const ValueSelect = React.forwardRef<ValueSelectRef, ValueSelectProps>(
-  (props, ref) => {
-    const componentRef = React.useRef<IValueSelect>(null);
-
-    React.useImperativeHandle(ref, () => ({
-      handleKeyDown: (keyCode: string | number) => {
-        return componentRef.current?.handleKeyDown(keyCode);
-      },
-      handleKeyDownForRenderMode: (operationalKey: string) => {
-        return (
-          componentRef.current?.handleKeyDownForRenderMode(operationalKey) ??
-          true
-        );
-      },
-    }));
-
-    return <IValueSelect {...props} ref={componentRef} />;
-  }
-);
-
-export { ValueSelect };

@@ -2,7 +2,6 @@ import React, { Component, createRef, forwardRef } from "react";
 import clone from "clone";
 import { Tag, TagValue } from "@/registry/new-york/tag-search-box/Tag";
 import { TagInput } from "@/registry/new-york/tag-search-box/TagInput";
-import { withOutsideClick } from "@/registry/new-york/tag-search-box/utils/withOutsideClick";
 import { mergeRefs } from "@/registry/new-york/tag-search-box/utils/MergeRefs";
 import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
 
@@ -580,7 +579,7 @@ class ITagSearchBox extends Component<
 
       return (
         <Tag
-          ref={(tag) => (this.tagRefs[`tag-${index}`] = tag)}
+          ref={(tag) => (this.tagRefs[`tag-${index}`] = tag) as any}
           active={active}
           // @ts-ignore
           key={item["_key"]}
@@ -615,7 +614,7 @@ class ITagSearchBox extends Component<
     tagList.push(
       <TagInput
         key="__input__"
-        ref={(input) => (this.tagRefs[`tag-${tags.length}`] = input)}
+        ref={(input) => (this.tagRefs[`tag-${tags.length}`] = input) as any}
         active={active}
         maxWidth={
           this.searchWrapRef.current
@@ -763,12 +762,9 @@ class ITagSearchBox extends Component<
   }
 }
 
-// 使用高阶组件添加外部点击检测
-const EnhancedTagSearchBox = withOutsideClick("close")(ITagSearchBox);
-
 export const TagSearchBox = forwardRef<HTMLDivElement, TagSearchBoxProps>(
   (props, ref) => {
-    return <EnhancedTagSearchBox {...props} forwardRef={ref} />;
+    return <ITagSearchBox {...props} forwardRef={ref} />;
   }
 );
 

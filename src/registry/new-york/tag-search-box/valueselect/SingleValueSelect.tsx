@@ -57,8 +57,6 @@ interface SingleValueSelectState {
 class SingleValueSelect extends Component<SingleValueSelectProps, SingleValueSelectState> {
   constructor(props: SingleValueSelectProps) {
     super(props);
-
-    console.log("SingleValueSelect", props);
     
     // Initialize selection
     let selectIndex = -1;
@@ -186,7 +184,7 @@ class SingleValueSelect extends Component<SingleValueSelectProps, SingleValueSel
 
     return (
       <Card 
-        className="border-none shadow-none"
+        className="border-none shadow-none py-0"
         style={{ 
           maxWidth: maxWidth || 300
         }}

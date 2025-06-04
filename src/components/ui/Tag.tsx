@@ -105,6 +105,8 @@ export class Tag
   handleKeyDown = (e: React.KeyboardEvent) => {
     if (!keys[e.keyCode]) return;
 
+    e.preventDefault();
+
     switch (keys[e.keyCode]) {
       case "tab":
       case "enter":
@@ -193,7 +195,6 @@ export class Tag
     return (
       <div
         onClick={(e) => this.handleTagClick(e)}
-        onKeyDown={this.handleKeyDown}
         tabIndex={0}
         role="button"
         ref={this.contentRef}

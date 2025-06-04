@@ -335,16 +335,22 @@ class IMultipleValueSelect extends Component<
         </CardContent>
 
         <CardFooter className="flex justify-end p-2 pt-2 border-t border-gray-200">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
               onClick={this.handleSubmit}
               disabled={select.length === 0}
               variant="default"
+              className="h-7 font-normal text-sm"
             >
               OK
             </Button>
-            <Button variant="ghost" size="sm" onClick={this.handleCancel}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={this.handleCancel}
+              className="h-7 font-normal text-sm"
+            >
               Cancel
             </Button>
           </div>

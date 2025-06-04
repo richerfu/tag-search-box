@@ -10,13 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
+import { Textarea } from "@/components/ui/textarea";
 
 const keys: Record<string | number, string> = {
   8: "backspace",
@@ -87,7 +81,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   declare context: React.ContextType<typeof TagSearchBoxContext>;
 
   private wrapperRef = createRef<HTMLDivElement>();
-  private inputRef = createRef<HTMLInputElement>();
+  private inputRef = createRef<HTMLInputElement & HTMLTextAreaElement>();
   private inputMirrorRef = createRef<HTMLSpanElement>();
   private attrSelectRef = createRef<any>();
   private valueSelectRef = createRef<any>();
@@ -127,11 +121,11 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   private refreshShow = () => {
     const { inputValue, attribute } = this.state;
     const input = this.inputRef.current;
-    const start = input?.selectionStart;
-    const end = input?.selectionEnd;
+    const start = input?.selectionStart ?? 0;
+    const end = input?.selectionEnd ?? 0;
     const pos = this.getAttrStrAndValueStr(inputValue).pos;
 
-    if (pos < 0 || (start ?? 0) <= pos) {
+    if (pos < 0 || start <= pos) {
       this.setState({
         showAttrSelect: true,
         showValueSelect: false,
@@ -139,7 +133,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       return;
     }
 
-    if (attribute && (end ?? 0) > pos) {
+    if (attribute && end > pos) {
       this.setState({
         showAttrSelect: false,
         showValueSelect: true,
@@ -340,7 +334,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
   };
 
   // Event handlers
-  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  private handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     this.setInputValue(e.target.value);
   };
 
@@ -502,7 +496,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         return;
     }
 
-    switch (keys[e.keyCode.toString()]) {
+    switch (keys[e.keyCode]) {
       case "enter":
       case "tab":
         if (!this.props.isFocused) {
@@ -514,7 +508,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         this.props.dispatchTagEvent("del", "keyboard");
         break;
       case "up":
-        break;
       case "down":
         break;
     }
@@ -602,7 +595,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
             >
               {type !== "edit" ? (
                 <Input
-                  ref={this.inputRef}
+                  ref={this.inputRef as React.RefObject<HTMLInputElement>}
                   value={inputValue}
                   onChange={this.handleInputChange}
                   onKeyDown={this.handleKeyDown}
@@ -638,10 +631,9 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     }}>
                       {fullInputValue}
                     </div>
-                    <br style={{ clear: "both" }} />
                   </pre>
-                  <Input
-                    ref={this.inputRef}
+                  <Textarea
+                    ref={this.inputRef as React.RefObject<HTMLTextAreaElement>}
                     value={inputValue}
                     onChange={this.handleInputChange}
                     onKeyDown={this.handleKeyDown}
@@ -649,7 +641,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     onPaste={this.handlePaste}
                     onFocus={this.refreshShow}
                     className={cn(
-                      "w-full border-none p-0 text-sm",
+                      "w-full border-none p-0 text-sm min-h-auto h-9",
                       "bg-transparent",
                       "focus:outline-none focus:ring-0 focus-visible:ring-0",
                       "placeholder:text-muted-foreground/70",

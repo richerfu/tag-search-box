@@ -106,8 +106,6 @@ class IValueSelect extends Component<ValueSelectProps, ValueSelectState> {
       render
     } = this.props;
 
-    console.log(values)
-
     // 如果提供了自定义渲染函数
     if (render) {
       return (

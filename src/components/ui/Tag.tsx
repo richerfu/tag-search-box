@@ -157,7 +157,6 @@ export class Tag
   getInfo = () => {
     const { attr, values } = this.props;
     const info = { attr, values };
-    console.log("info", info);
     return info;
   };
 

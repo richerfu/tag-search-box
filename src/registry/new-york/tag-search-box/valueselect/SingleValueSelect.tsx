@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { searchFilter } from "@/registry/new-york/tag-search-box/utils";
+import { searchFilter } from "@/registry/new-york/tag-search-box/utils/SearchFilter";
 
 import {
   Card,

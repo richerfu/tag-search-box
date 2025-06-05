@@ -2,6 +2,8 @@
 
 This project's idea comes from `tea-component` [TagSearchBox](https://tea-design.github.io/component/tagsearchbox) and using `shadcn-ui` to reimplement it.
 
+![Demo](./fixtures/demo.gif)
+
 ## Install
 
 Just install it with `shadcn`.
@@ -9,6 +11,11 @@ Just install it with `shadcn`.
 ```bash
 pnpm dlx shadcn@latest add https://raw.githubusercontent.com/richerfu/tag-search-box/refs/heads/main/public/r/TagSearchBox.json
 ```
+
+## Require
+
+- React 19
+- Tailwindcss 4
 
 ## Usage
 

@@ -2,33 +2,32 @@ import {
   TagSearchBox,
   AttributeValue,
 } from "@/registry/new-york/tag-search-box/TagSearchBox";
-import { Button } from "@/components/ui/button";
 
 const attributes: AttributeValue[] = [
   {
     type: "single",
     key: "status",
-    name: "状态",
+    name: "Status",
     values: [
       {
         key: "running",
-        name: "运行中",
+        name: "Running",
       },
     ],
   },
   {
     type: "input",
     key: "type",
-    name: "类型",
+    name: "Type",
   },
   {
     type: "multiple",
     key: "region",
-    name: "地域",
+    name: "Region",
     values: [
       {
         key: "east-1",
-        name: "华东1",
+        name: "East-1",
       },
     ],
   },
@@ -47,9 +46,6 @@ export default function App() {
           }
         />
       </div>
-
-
-      <Button>hello</Button>
     </main>
   );
 }

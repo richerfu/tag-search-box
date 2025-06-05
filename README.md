@@ -1,29 +1,72 @@
-# Rsbuild project
+# TagSearchBox
 
-## Setup
+This project's idea comes from `tea-component` [TagSearchBox]() and using `shadcn-ui` to reimplement it.
 
-Install the dependencies:
+## Install
 
-```bash
-pnpm install
-```
-
-## Get started
-
-Start the dev server:
+Just install it with `shadcn`.
 
 ```bash
-pnpm dev
+pnpm dlx shadcn@latest add https://raw.githubusercontent.com/richerfu/tag-search-box/refs/heads/main/public/r/TagSearchBox.json
 ```
 
-Build the app for production:
+## Usage
 
-```bash
-pnpm build
+```tsx
+import { TagSearchBox, AttributeValue } from "@/components/ui/tag-search-box";
+
+const attributes: AttributeValue[] = [
+  {
+    type: "single",
+    key: "status",
+    name: "Status",
+    values: [
+      {
+        key: "running",
+        name: "Running",
+      },
+    ],
+  },
+  {
+    type: "input",
+    key: "type",
+    name: "Type",
+  },
+  {
+    type: "multiple",
+    key: "region",
+    name: "Region",
+    values: [
+      {
+        key: "east-1",
+        name: "East-1",
+      },
+    ],
+  },
+];
+
+export default function App() {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <div className="w-full max-w-3xl">
+        <h1 className="mb-8 text-2xl font-bold">TagSearchBox Demo</h1>
+        <TagSearchBox
+          attributes={attributes}
+          onChange={(tags) => console.log("Tags changed:", tags)}
+          onSearchButtonClick={(e, tags) =>
+            console.log("Search clicked:", tags)
+          }
+        />
+      </div>
+    </main>
+  );
+}
 ```
 
-Preview the production build locally:
+## Note
 
-```bash
-pnpm preview
-```
+**This component may have some style or logic issues and need to fix.**
+
+## License
+
+[MIT](./LICENSE)

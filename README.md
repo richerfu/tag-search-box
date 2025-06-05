@@ -1,6 +1,6 @@
 # TagSearchBox
 
-This project's idea comes from `tea-component` [TagSearchBox]() and using `shadcn-ui` to reimplement it.
+This project's idea comes from `tea-component` [TagSearchBox](https://tea-design.github.io/component/tagsearchbox) and using `shadcn-ui` to reimplement it.
 
 ## Install
 

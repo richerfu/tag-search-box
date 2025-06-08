@@ -636,17 +636,13 @@ class ITagSearchBox extends Component<
             "flex w-full flex-wrap gap-2",
             "rounded-md border border-input",
             "pl-2 py-1",
-            "bg-background text-sm shadow-sm",
-            "ring-offset-background",
-            "transition-colors duration-200",
-            "focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0",
+            "bg-background text-sm",
             "disabled:cursor-not-allowed disabled:opacity-50",
             !active && "overflow-hidden",
             !disabled && [
               "cursor-text",
-              "hover:border-primary/50",
               active && "border-primary",
-              active && "ring-2 ring-primary/20",
+              active && "ring-4 ring-primary/20",
             ]
           )}
           ref={mergeRefs(this.searchWrapRef, forwardRef)}

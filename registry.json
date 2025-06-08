@@ -29,72 +29,72 @@
         {
           "path": "src/registry/new-york/tag-search-box/index.ts",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/index.ts"
+          "target": "src/components/tag-search-box/index.ts"
         },
         {
           "path": "src/registry/new-york/tag-search-box/TagSearchBox.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/TagSearchBox.tsx"
+          "target": "src/components/tag-search-box/TagSearchBox.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/TagInput.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/TagInput.tsx"
+          "target": "src/components/tag-search-box/TagInput.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/Tag.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/Tag.tsx"
+          "target": "src/components/tag-search-box/Tag.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/AttributeSelect.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/AttributeSelect.tsx"
+          "target": "src/components/tag-search-box/AttributeSelect.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/TagSearchboxContext.ts",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/TagSearchboxContext.ts"
+          "target": "src/components/tag-search-box/TagSearchboxContext.ts"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/ValueSelect.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/ValueSelect.tsx"
+          "target": "src/components/tag-search-box/valueselect/ValueSelect.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/PureInput.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/PureInput.tsx"
+          "target": "src/components/tag-search-box/valueselect/PureInput.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/SingleValueSelect.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/SingleValueSelect.tsx"
+          "target": "src/components/tag-search-box/valueselect/SingleValueSelect.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/MultipleValueSelect.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/MultipleValueSelect.tsx"
+          "target": "src/components/tag-search-box/valueselect/MultipleValueSelect.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/Loading.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/Loading.tsx"
+          "target": "src/components/tag-search-box/valueselect/Loading.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/valueselect/Empty.tsx",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/valueselect/Empty.tsx"
+          "target": "src/components/tag-search-box/valueselect/Empty.tsx"
         },
         {
           "path": "src/registry/new-york/tag-search-box/utils/SearchFilter.ts",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/utils/SearchFilter.ts"
+          "target": "src/components/tag-search-box/utils/SearchFilter.ts"
         },
         {
           "path": "src/registry/new-york/tag-search-box/utils/MergeRefs.ts",
           "type": "registry:component",
-          "target": "src/components/ui/tag-search-box/utils/MergeRefs.ts"
+          "target": "src/components/tag-search-box/utils/MergeRefs.ts"
         }
       ]
     }

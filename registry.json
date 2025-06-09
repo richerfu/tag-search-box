@@ -95,6 +95,11 @@
           "path": "src/registry/new-york/tag-search-box/utils/MergeRefs.ts",
           "type": "registry:component",
           "target": "src/components/tag-search-box/utils/MergeRefs.ts"
+        },
+        {
+          "path": "src/registry/new-york/tag-search-box/utils/withOutsideClick.tsx",
+          "type": "registry:component",
+          "target": "src/components/tag-search-box/utils/withOutsideClick.tsx"
         }
       ]
     }

@@ -532,12 +532,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
     });
   };
 
-  private handleOpenChange = (open: boolean) => {
-    if (!open) {
-      this.context.close?.();
-    }
-  };
-
   render() {
     const { active, hidden, maxWidth, type, isFocused, attributes } =
       this.props;
@@ -565,6 +559,11 @@ class TagInput extends Component<TagInputProps, TagInputState> {
       }
     } catch (_) {}
 
+    const isOpen =
+      active &&
+      isFocused &&
+      (showAttrSelect || (showValueSelect && !!attribute && !!attribute.type));
+
     return (
       <div
         ref={this.wrapperRef}
@@ -579,22 +578,13 @@ class TagInput extends Component<TagInputProps, TagInputState> {
         }}
         onClick={this.handleInputClick}
       >
-        <Popover
-          open={
-            active &&
-            isFocused &&
-            (showAttrSelect ||
-              (showValueSelect && !!attribute && !!attribute.type))
-          }
-          onOpenChange={this.handleOpenChange}
-        >
+        <Popover open={isOpen}>
           <PopoverTrigger asChild>
             <div
               className={cn("relative flex items-center")}
               style={{
                 width: hidden ? 0 : inputWidth + 6,
                 maxWidth: maxWidth ? maxWidth - 36 : 435,
-                display: active ? "" : "none",
               }}
             >
               {type !== "edit" ? (
@@ -620,7 +610,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                   type="text"
                   style={{
                     width: hidden ? 0 : inputWidth + 6,
-                    display: active ? "" : "none",
                     maxWidth: maxWidth ? maxWidth - 36 : 435,
                   }}
                   data-type="tag-input"
@@ -659,7 +648,6 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     )}
                     style={{
                       width: hidden ? 0 : inputWidth + 30,
-                      display: active ? "" : "none",
                       maxWidth: maxWidth ? maxWidth - 36 : 435,
                       position: "absolute",
                       top: 0,

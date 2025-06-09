@@ -279,7 +279,7 @@ export class Tag
           maxWidth={maxWidth!}
           handleKeyDown={this.handleKeyDown}
           active={active}
-          ref={(input) => (this.inputInsideRef = input)}
+          ref={(input) => (this.inputInsideRef = input) as any}
           attributes={attributes}
           dispatchTagEvent={dispatchTagEvent!}
           isFocused={focused === FocusPosType.INPUT_EDIT}

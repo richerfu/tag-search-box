@@ -4,6 +4,7 @@ import { Tag, TagValue } from "@/registry/new-york/tag-search-box/Tag";
 import { TagInput } from "@/registry/new-york/tag-search-box/TagInput";
 import { mergeRefs } from "@/registry/new-york/tag-search-box/utils/MergeRefs";
 import { TagSearchBoxContext } from "@/registry/new-york/tag-search-box/TagSearchboxContext";
+import { withOutsideClick } from "@/registry/new-york/tag-search-box/utils/withOutsideClick";
 
 import {
   Dialog,
@@ -243,23 +244,20 @@ class ITagSearchBox extends Component<
       return newItem;
     });
 
+
     this.setTags(
       updatedTags,
       () => {
-        this.setState({ showSelect: false });
-
-        if (active) {
-          this.setState(
-            {
-              curPos: -1,
-            },
-            () => {
+        this.setState({ showSelect: false }, () => {
+          if (active) {
+            this.setState({ active: false }, () => {
+              this.setState({ curPos: -1 });
               if (this.searchBoxRef.current) {
                 this.searchBoxRef.current.scrollLeft = 0;
               }
-            }
-          );
-        }
+            });
+          }
+        });
       },
       false
     );
@@ -758,9 +756,16 @@ class ITagSearchBox extends Component<
   }
 }
 
+export const TagSearchBoxWithOutsideClick = withOutsideClick("close")(
+  ITagSearchBox,
+  {
+    ignoreClasses: ["ignore-outside-click"],
+  }
+);
+
 export const TagSearchBox = forwardRef<HTMLDivElement, TagSearchBoxProps>(
   (props, ref) => {
-    return <ITagSearchBox {...props} forwardRef={ref} />;
+    return <TagSearchBoxWithOutsideClick {...props} forwardRef={ref} />;
   }
 );
 

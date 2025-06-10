@@ -605,7 +605,8 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                     "caret-foreground",
                     "shadow-none",
                     "flex items-center",
-                    "resize-none"
+                    "resize-none",
+                    "h-7"
                   )}
                   type="text"
                   style={{
@@ -644,7 +645,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                       "caret-foreground",
                       "shadow-none",
                       "resize-none",
-                      "h-9"
+                      "h-8"
                     )}
                     style={{
                       width: hidden ? 0 : inputWidth + 30,

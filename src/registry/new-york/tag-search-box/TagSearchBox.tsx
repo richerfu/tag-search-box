@@ -244,7 +244,6 @@ class ITagSearchBox extends Component<
       return newItem;
     });
 
-
     this.setTags(
       updatedTags,
       () => {
@@ -633,7 +632,7 @@ class ITagSearchBox extends Component<
           className={cn(
             "flex w-full flex-wrap gap-2",
             "rounded-md border border-input",
-            "pl-2 py-1",
+            "pl-2 py-0",
             "bg-background text-sm",
             "disabled:cursor-not-allowed disabled:opacity-50",
             !active && "overflow-hidden",
@@ -681,7 +680,7 @@ class ITagSearchBox extends Component<
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 hover:bg-muted rounded-none"
+                      className="h-[30px] w-[30px] p-0 hover:bg-muted rounded-none"
                       onClick={this.handleClear}
                     >
                       <X className="h-4 w-4" />
@@ -702,7 +701,7 @@ class ITagSearchBox extends Component<
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 hover:bg-muted rounded-none"
+                      className="h-[30px] w-[30px] p-0 hover:bg-muted rounded-none"
                       onClick={this.handleHelp}
                     >
                       <Info className="h-4 w-4" />
@@ -723,7 +722,7 @@ class ITagSearchBox extends Component<
                     variant="ghost"
                     size="icon"
                     className={cn(
-                      "h-8 w-8 hover:bg-muted rounded-none rounded-r-md",
+                      "h-[30px] w-[30px] p-0 hover:bg-muted rounded-none rounded-r-md",
                       active && "text-primary"
                     )}
                     disabled={disabled}

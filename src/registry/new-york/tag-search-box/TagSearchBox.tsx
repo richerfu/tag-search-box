@@ -632,9 +632,10 @@ class ITagSearchBox extends Component<
           className={cn(
             "w-full relative rounded-md border border-input",
             "pl-2 py-0",
-            "bg-background text-sm",
+            "bg-background text-sm leading-none",
             "disabled:cursor-not-allowed disabled:opacity-50",
-            !active && ["overflow-hidden", "h-8"],
+            "box-border",
+            !active && ["overflow-hidden", "h-[34px]"],
             !disabled && [
               "cursor-text",
               active && "border-primary",
@@ -645,7 +646,7 @@ class ITagSearchBox extends Component<
           onClick={this.open}
         >
           <div
-            className="inline-flex align-top"
+            className="inline-flex align-top flex-wrap"
             ref={mergeRefs(this.searchBoxRef)}
           >
             <TagSearchBoxContext.Provider
@@ -670,7 +671,10 @@ class ITagSearchBox extends Component<
           </div>
 
           <div
-            className={cn("inline-block absolute right-0", "bg-transparent")}
+            className={cn(
+              "inline-block absolute right-0 h-8",
+              "bg-transparent"
+            )}
           >
             {!!active && tags.length > 0 && (
               <TooltipProvider>
@@ -679,7 +683,7 @@ class ITagSearchBox extends Component<
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-[30px] w-[30px] p-0 hover:bg-muted rounded-none"
+                      className="h-8 w-8 p-0 hover:bg-muted rounded-none"
                       onClick={this.handleClear}
                     >
                       <X className="h-4 w-4" />
@@ -700,7 +704,7 @@ class ITagSearchBox extends Component<
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-[30px] w-[30px] p-0 hover:bg-muted rounded-none"
+                      className="h-8 w-8 p-0 hover:bg-muted rounded-none"
                       onClick={this.handleHelp}
                     >
                       <Info className="h-4 w-4" />

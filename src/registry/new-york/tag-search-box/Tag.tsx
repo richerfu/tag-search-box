@@ -186,7 +186,7 @@ export class Tag extends Component<TagProps, { inEditing: boolean }> implements 
             'hover:bg-accent hover:text-accent-foreground',
             'cursor-text',
             'focus:outline-none focus:ring-1 focus:ring-ring focus:ring-offset-1',
-            'mt-0.5 mr-1',
+            'mt-[3px] mr-[3px]',
           )}
           style={{
             display: inEditing ? 'none' : undefined,

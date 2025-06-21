@@ -645,7 +645,7 @@ class TagInput extends Component<TagInputProps, TagInputState> {
                       "caret-foreground",
                       "shadow-none",
                       "resize-none",
-                      "h-8"
+                      "h-7"
                     )}
                     style={{
                       width: hidden ? 0 : inputWidth + 30,

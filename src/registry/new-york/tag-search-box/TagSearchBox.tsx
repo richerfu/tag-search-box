@@ -672,7 +672,7 @@ class ITagSearchBox extends Component<
             </TagSearchBoxContext.Provider>
           </div>
 
-          <div className={cn("flex items-center gap-0.5", "bg-background")}>
+          <div className={cn("flex items-center gap-0.5", "bg-transparent")}>
             {!!active && tags.length > 0 && (
               <TooltipProvider>
                 <Tooltip>

@@ -23,7 +23,7 @@ import { X, Info, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AttributeValue } from "@/registry/new-york/tag-search-box/AttributeSelect";
 
-export type { AttributeValue };
+export type { AttributeValue, TagValue };
 
 /**
  * 焦点所在位置类型
